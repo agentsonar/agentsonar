@@ -58,6 +58,21 @@ All three fire as structured alerts in real-time via stderr, JSONL
 timeline, and a standalone HTML report that you can email or attach
 to a bug ticket.
 
+## What the output looks like
+
+Every run produces a self-contained HTML report — no external CSS
+or JavaScript, no network requests, dark mode that respects your
+system preference. Each coordination event renders as a card with
+its severity, failure class (hover for a definition), summary, and
+expandable topology / thresholds blocks.
+
+![AgentSonar HTML report](docs/images/htmlreport.png)
+
+The same events are also available as structured JSON
+(`report.json`), a chronological JSONL stream (`timeline.jsonl`),
+and a human-readable alerts log (`alerts.log`) — everything lives
+in a per-run session directory under `agentsonar_logs/`.
+
 ## Current status
 
 **Closed beta.** Actively deployed in the environments of six design
