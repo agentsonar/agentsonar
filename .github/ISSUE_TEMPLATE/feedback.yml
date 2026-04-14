@@ -1,0 +1,40 @@
+name: Feedback / question
+description: General feedback, integration questions, or "am I using this right?" kinds of things
+title: "[q] "
+labels: ["question", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For anything that isn't clearly a bug or a feature request —
+        how-to questions, impressions from trying the SDK, discussions
+        about multi-agent patterns, or "is this supposed to work this
+        way?" We read everything.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: What's on your mind?
+      placeholder: |
+        e.g. "I'm evaluating observability options for a CrewAI crew
+        running in production. How does AgentSonar compare to
+        LangSmith for the specific case of X?"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: What best describes you?
+      options:
+        - Individual developer / hobbyist
+        - Team evaluating for production use
+        - Researcher
+        - Design partner
+        - Other
+
+  - type: input
+    id: framework
+    attributes:
+      label: Framework you're using (if any)
+      placeholder: e.g. CrewAI, LangGraph, AutoGen, none yet

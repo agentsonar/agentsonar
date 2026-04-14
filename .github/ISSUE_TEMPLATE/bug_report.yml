@@ -1,0 +1,91 @@
+name: Bug report
+description: Something's not working the way you expect
+title: "[bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. A few details up
+        front make it much faster for us to reproduce and fix.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the unexpected behavior in your own words.
+      placeholder: |
+        e.g. "I ran monitor() on a LangGraph with 4 nodes and the
+        HTML report shows no events, even though I saw alerts stream
+        to stderr during the run."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Minimal code that triggers the bug, if possible.
+      placeholder: |
+        ```python
+        from agentsonar import monitor
+        # ...
+        ```
+      render: markdown
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      options:
+        - CrewAI
+        - LangGraph / LangChain
+        - Neither (using the engine directly)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version-agentsonar
+    attributes:
+      label: AgentSonar version
+      description: Run `python -c "from agentsonar import __version__; print(__version__)"`
+      placeholder: e.g. 0.1.3
+    validations:
+      required: true
+
+  - type: input
+    id: version-framework
+    attributes:
+      label: Framework version
+      description: e.g. output of `pip show crewai` or `pip show langgraph`
+      placeholder: e.g. crewai 1.14.1
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: e.g. 3.12.3
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: e.g. Windows 11, macOS 14.5, Ubuntu 24.04
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant stderr / JSONL output
+      description: |
+        Paste any AgentSonar stderr alerts or relevant lines from
+        `agentsonar_logs/<latest>/timeline.jsonl`. Please scrub
+        anything sensitive before pasting.
+      render: text

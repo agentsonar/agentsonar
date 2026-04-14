@@ -1,0 +1,13 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Install from PyPI
+    url: https://pypi.org/project/agentsonar/
+    about: |
+      `pip install agentsonar[langgraph]` or `pip install agentsonar[crewai]`.
+      The README on PyPI has install instructions and the two-line integration.
+  - name: Quick start guide
+    url: https://github.com/agentsonar/agentsonar#two-line-integration
+    about: Copy-paste two lines of code to wire AgentSonar into your crew or graph.
+  - name: Apply as a design partner
+    url: https://github.com/agentsonar/agentsonar/issues/new?template=feedback.yml&title=%5Bdesign+partner%5D+
+    about: Describe your multi-agent workload and we'll follow up about beta access.

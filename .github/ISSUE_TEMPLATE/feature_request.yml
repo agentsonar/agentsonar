@@ -1,0 +1,57 @@
+name: Feature request
+description: Suggest a new detection class, framework integration, or output format
+title: "[feature] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests help shape the AgentSonar roadmap. The most
+        useful ones describe a real workload you're running and a
+        specific failure mode you'd want detected or visualized.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: What are you trying to detect / visualize / integrate with that AgentSonar can't do today?
+      placeholder: |
+        e.g. "My CrewAI crew uses a custom tool that occasionally
+        returns malformed JSON, and the manager retries silently.
+        I'd want an alert the first time that happens."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: How do you imagine AgentSonar would handle this? Rough sketch of the API or alert shape.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      multiple: true
+      options:
+        - New detection class
+        - New framework integration (AutoGen, Semantic Kernel, etc.)
+        - New output format / dashboard
+        - Configuration knob / tuning
+        - Developer ergonomics
+        - Other
+
+  - type: textarea
+    id: workload
+    attributes:
+      label: What does your multi-agent workload look like?
+      description: A couple sentences on the agents, the framework, and the scale (rough events/minute) helps us prioritize.
+
+  - type: checkboxes
+    id: tradeoffs
+    attributes:
+      label: Willing to be a design partner?
+      options:
+        - label: I'd be willing to pilot this feature on my workload before general release
