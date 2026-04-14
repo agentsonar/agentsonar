@@ -54,9 +54,9 @@ Three coordination failure classes currently supported:
 - **Resource exhaustion** — runaway event throughput that would
   burn through your token budget if left unchecked
 
-All three fire as structured alerts in real-time via stderr, JSONL
-timeline, and a standalone HTML report that you can email or attach
-to a bug ticket.
+All three fire as structured alerts in real-time via stderr, a
+JSONL timeline, a human-readable alerts log, and a standalone HTML
+report you can email or attach to a bug ticket.
 
 ## What the output looks like
 
@@ -68,10 +68,20 @@ expandable topology / thresholds blocks.
 
 ![AgentSonar HTML report](docs/images/htmlreport.png)
 
-The same events are also available as structured JSON
-(`report.json`), a chronological JSONL stream (`timeline.jsonl`),
-and a human-readable alerts log (`alerts.log`) — everything lives
-in a per-run session directory under `agentsonar_logs/`.
+All four output files land in a per-run session directory under
+`agentsonar_logs/`:
+
+| File | Written | Purpose |
+|---|---|---|
+| `timeline.jsonl` | **Live — flushed on every event** | Every event, one JSON object per line. Tail with `tail -f` to watch what's happening as your crew runs. |
+| `alerts.log` | **Live — flushed on every alert** | Signal-only, human-readable. The "just show me the problems" view. |
+| `report.json` | On `shutdown()` | Structured summary report, deduped + inhibited. Pipe into your dashboard. |
+| `report.html` | On `shutdown()` | The standalone HTML report shown above. |
+
+The two `.jsonl` / `.log` files mean you don't have to wait for
+your crew to finish to see what went wrong. Open a second terminal
+and `tail -f agentsonar_logs/<latest>/timeline.jsonl` — coordination
+failures surface the moment they happen.
 
 ## Current status
 
