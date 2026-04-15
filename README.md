@@ -100,10 +100,23 @@ repo exists for:
 If you'd like to be considered as a design partner, open an issue
 describing your multi-agent workload and we'll follow up.
 
+## Contact / feedback
+
+We read everything. Reach out whichever way fits your question:
+
+- **Open an issue** — fastest, public, searchable by other users who
+  may hit the same thing. Structured templates for
+  [bug reports](https://github.com/agentsonar/agentsonar/issues/new?template=bug_report.yml),
+  [feature requests](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml),
+  and [general feedback or questions](https://github.com/agentsonar/agentsonar/issues/new?template=feedback.yml).
+  Maintainers respond here.
+- **Email** — <agentsonarai@gmail.com> for private feedback, design
+  partner inquiries, security reports, or anything that doesn't fit
+  a public issue.
+
 ## Links
 
 - **PyPI:** <https://pypi.org/project/agentsonar/>
-- **Issues:** [github.com/agentsonar/agentsonar/issues](https://github.com/agentsonar/agentsonar/issues)
 - **Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
 ## License
