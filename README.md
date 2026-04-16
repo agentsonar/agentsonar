@@ -58,6 +58,20 @@ All three fire as structured alerts in real-time via stderr, a
 JSONL timeline, a human-readable alerts log, and a standalone HTML
 report you can email or attach to a bug ticket.
 
+## Validated against frontier models
+
+Skeptical that top-tier models like Claude Opus 4.6 or Gemini
+actually get stuck in loops? They do — and smarter models make it
+*worse*, not better, because a more capable reviewer finds more
+subtle issues to flag on every pass. We reproduced three
+coordination-failure scenarios (cyclic delegation, repetitive
+delegation, spawn explosion) on real LangGraph workloads running
+Sonnet 4 and Opus 4.6 with natural non-rigged prompts. AgentSonar
+flagged each one in real time.
+
+→ Full scenarios and alert output:
+**[`docs/VALIDATION.md`](docs/VALIDATION.md)**
+
 ## What the output looks like
 
 Every run produces a self-contained HTML report — no external CSS
@@ -117,6 +131,7 @@ We read everything. Reach out whichever way fits your question:
 ## Links
 
 - **PyPI:** <https://pypi.org/project/agentsonar/>
+- **Validation on frontier models:** [`docs/VALIDATION.md`](docs/VALIDATION.md)
 - **Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
 ## License
