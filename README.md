@@ -16,9 +16,10 @@ Think **Sentry, but for multi-agent AI systems**.
 ## Install
 
 ```bash
-pip install agentsonar[crewai]      # for CrewAI
-pip install agentsonar[langgraph]   # for LangGraph / LangChain
-pip install agentsonar[all]         # both
+pip install agentsonar               # custom orchestrators — no extras needed
+pip install agentsonar[crewai]       # for CrewAI
+pip install agentsonar[langgraph]    # for LangGraph / LangChain
+pip install agentsonar[all]          # crewai + langgraph
 ```
 
 Available on PyPI: **[pypi.org/project/agentsonar](https://pypi.org/project/agentsonar/)**
@@ -39,6 +40,16 @@ sonar = AgentSonarListener()
 from agentsonar import monitor
 graph = monitor(graph)
 result = graph.invoke(input)
+```
+
+**Custom orchestrator** (hand-rolled Python, subprocess pipelines, Celery DAGs):
+
+```python
+from agentsonar import monitor_orchestrator
+sonar = monitor_orchestrator()
+sonar.delegation(source="planner", target="researcher")
+# ...run your agents normally...
+sonar.shutdown()
 ```
 
 That's the whole API. No accounts, no API keys, zero config required.
@@ -76,11 +87,33 @@ flagged each one in real time.
 
 Every run produces a self-contained HTML report — no external CSS
 or JavaScript, no network requests, dark mode that respects your
-system preference. Each coordination event renders as a card with
-its severity, failure class (hover for a definition), summary, and
-expandable topology / thresholds blocks.
+system preference. Two top-level tabs organize the view:
 
-![AgentSonar HTML report](docs/images/htmlreport.png)
+**1. Coordination Failures** — the primary signal. One card per
+detected failure with severity badge, failure class (hover for a
+definition), fingerprint, and expandable topology / thresholds /
+provider-error / downstream-impact blocks. Filter chips at the top
+let you narrow to Critical or Warning with one click.
+
+![Coordination Failures tab — the primary signal, Sentry-style](docs/images/coordination-failures.png)
+
+**2. Session Activity** — INFO-level context, always one click away.
+Two sub-tabs switch between lenses on the same run:
+
+- **Edge Activity** — every delegation edge the graph saw, with fire
+  count and severity attribution. Red border = edge involved in a
+  critical alert, no border = clean. Scans in seconds, even on
+  hundred-event sessions.
+- **Chronological Log** — raw event stream with timestamps. Rows
+  color-coded where an alert fired: light red for critical, light
+  orange for warning. Lets you see *when* coordination broke relative
+  to surrounding traffic.
+
+![Session Activity tab — Edge Activity view](docs/images/session-activity.png)
+
+The "Coordination Failures — Raw JSON" drop-down at the bottom of
+every report carries the same payload as `report.json` — copy it
+straight into a dashboard or CI gate without opening a second file.
 
 All four output files land in a per-run session directory under
 `agentsonar_logs/`:
@@ -90,7 +123,7 @@ All four output files land in a per-run session directory under
 | `timeline.jsonl` | **Live — flushed on every event** | Every event, one JSON object per line. Tail with `tail -f` to watch what's happening as your crew runs. |
 | `alerts.log` | **Live — flushed on every alert** | Signal-only, human-readable. The "just show me the problems" view. |
 | `report.json` | On `shutdown()` | Structured summary report, deduped + inhibited. Pipe into your dashboard. |
-| `report.html` | On `shutdown()` | The standalone HTML report shown above. |
+| `report.html` | On `shutdown()` | The standalone two-tab HTML report shown above. |
 
 The two `.jsonl` / `.log` files mean you don't have to wait for
 your crew to finish to see what went wrong. Open a second terminal
