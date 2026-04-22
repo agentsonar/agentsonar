@@ -11,6 +11,9 @@ still running.
 
 Think **Sentry, but for multi-agent AI systems**.
 
+**Detection today. Prevention, FinOps, and governance on the same graph
+substrate — next up.** See [What's next](#whats-next).
+
 ---
 
 ## Install
@@ -20,6 +23,7 @@ pip install agentsonar               # custom orchestrators — no extras needed
 pip install agentsonar[crewai]       # for CrewAI
 pip install agentsonar[langgraph]    # for LangGraph / LangChain
 pip install agentsonar[all]          # crewai + langgraph
+# OpenAI Agents SDK native adapter: shipping next (see What's next below)
 ```
 
 Available on PyPI: **[pypi.org/project/agentsonar](https://pypi.org/project/agentsonar/)**
@@ -54,7 +58,7 @@ sonar.shutdown()
 
 That's the whole API. No accounts, no API keys, zero config required.
 
-## What gets detected
+## What's detected today
 
 Three coordination failure classes currently supported:
 
@@ -68,6 +72,33 @@ Three coordination failure classes currently supported:
 All three fire as structured alerts in real-time via stderr, a
 JSONL timeline, a human-readable alerts log, and a standalone HTML
 report you can email or attach to a bug ticket.
+
+<a id="whats-next"></a>
+## What's next
+
+AgentSonar today ships **Detection**. The substrate it runs on — a
+first-class coordination graph with stable cross-run fingerprints and
+framework-agnostic adapters — was built so the same primitive powers a
+handful of adjacent products. The sequencing:
+
+| Next | Rough timing | What it unlocks |
+|---|---|---|
+| **OpenAI Agents SDK** native adapter | ~2–3 weeks | Same one-import integration you already get on CrewAI / LangGraph. For OpenAI SDK users today, the [custom-orchestrator adapter](https://pypi.org/project/agentsonar/) works as a bridge. |
+| **Prevent Mode** | ~4 weeks | Circuit breakers on detected cycles, per-edge budget caps. The difference between *"alerting on the $47K loop"* and *"killing it at $38."* Moves AgentSonar from debugger to runtime control plane. |
+| **Cost attribution** (FinOps) | ~6 weeks | Token cost per agent AND per delegation edge. Answers *"which coordination pattern burned the most this week?"* without leaving the tool. |
+| **Dynamic-delegation tracking** | ~8 weeks | Instrument runtime handoff patterns (e.g. OpenAI Agents SDK handoffs, `delegate_to_agent` tools) that static adapters under-capture today. |
+| **Governance / audit trails** | longer | EU AI Act Article 12 logs, SOC 2 decision lineage — the compliance tier enterprises will need once the August 2026 EU enforcement date hits. |
+
+Same graph, different products. The goal is closer to what **Datadog**
+did with metrics+tags (20+ products on one data model) or **Sentry**
+did with its event schema than to what a one-trick loop detector would
+look like.
+
+If there's a specific detector, integration, or expansion area on
+this list you'd want moved up, [open an
+issue](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml)
+— feature priority is driven by real user requests, not a roadmap
+committee.
 
 ## Validated against frontier models
 
@@ -132,8 +163,10 @@ failures surface the moment they happen.
 
 ## Current status
 
-**Closed beta.** Actively deployed in the environments of six design
-partners. Python SDK only, Apache-2.0 licensed, published to PyPI.
+**Closed beta, expanding.** Deployed across six design partners spanning
+CrewAI, LangGraph, and custom Python orchestrators. Python SDK shipping
+on PyPI, Apache-2.0 licensed. OpenAI Agents SDK native adapter in active
+development; see [What's next](#whats-next) for the full sequence.
 
 Source repository is currently private during the beta. This public
 repo exists for:
