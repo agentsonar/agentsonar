@@ -1,6 +1,7 @@
 # AgentSonar
 
-**Detect coordination failures in multi-agent AI systems — in real time.**
+**The coordination intelligence layer for multi-agent AI.**
+*Detect, prevent, and optimize coordination across any framework — in real time.*
 
 When agents get stuck in infinite loops, spam each other with
 redundant delegations, or blow through a rate limit, standard
