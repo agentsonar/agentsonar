@@ -162,12 +162,24 @@ your crew to finish to see what went wrong. Open a second terminal
 and `tail -f agentsonar_logs/<latest>/timeline.jsonl` — coordination
 failures surface the moment they happen.
 
+## TypeScript / Open Multi-Agent
+
+For [Open Multi-Agent (OMA)](https://github.com/JackChen-me/open-multi-agent) — a TypeScript multi-agent framework by Jack Chen — there's a sibling package `@agentsonar/oma` that bridges OMA's task graph and trace events to a local AgentSonar Python sidecar. Same detection engine, same HTML report, TypeScript-idiomatic install.
+
+```bash
+npm install @agentsonar/oma
+pip install agentsonar
+```
+
+→ Full docs: [`github.com/agentsonar/agentsonar-oma`](https://github.com/agentsonar/agentsonar-oma)
+
 ## Current status
 
 **Closed beta, expanding.** Deployed across six design partners spanning
-CrewAI, LangGraph, and custom Python orchestrators. Python SDK shipping
-on PyPI, Apache-2.0 licensed. OpenAI Agents SDK native adapter in active
-development; see [What's next](#whats-next) for the full sequence.
+CrewAI, LangGraph, custom Python orchestrators, and Open Multi-Agent
+(TypeScript). Python SDK shipping on PyPI, Apache-2.0 licensed. OpenAI
+Agents SDK native adapter in active development; see
+[What's next](#whats-next) for the full sequence.
 
 Source repository is currently private during the beta. This public
 repo exists for:
