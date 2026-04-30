@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        For anything that isn't clearly a bug or a feature request —
+        For anything that isn't clearly a bug or a feature request,
         how-to questions, impressions from trying the SDK, discussions
         about multi-agent patterns, or "is this supposed to work this
         way?" We read everything.
