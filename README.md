@@ -13,6 +13,8 @@ framework via our universal Python adapter. Don't see your framework?
 [Request it](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml)
 and we'll plug it in for you.
 
+[Website](https://www.agent-sonar.com) · [Discord](https://discord.gg/cPPD4xHe) · [PyPI](https://pypi.org/project/agentsonar/) · [npm (`@agentsonar/oma`)](https://www.npmjs.com/package/@agentsonar/oma) · [Issues](https://github.com/agentsonar/agentsonar/issues)
+
 ---
 
 ## What you get
@@ -257,6 +259,8 @@ describing your multi-agent workload and we'll follow up.
 
 ## Links
 
+- Website: [agent-sonar.com](https://www.agent-sonar.com)
+- Discord: [discord.gg/cPPD4xHe](https://discord.gg/cPPD4xHe)
 - PyPI: [`agentsonar`](https://pypi.org/project/agentsonar/)
 - npm (TypeScript / OMA): [`@agentsonar/oma`](https://www.npmjs.com/package/@agentsonar/oma)
 - Validation: [`docs/VALIDATION.md`](docs/VALIDATION.md)
