@@ -14,11 +14,46 @@ For comparison, a single LLM API call is typically 500 to 5000 milliseconds. Age
 
 ## Does it phone home? What data leaves my machine?
 
-Nothing leaves your machine. AgentSonar is a local Python library. There is no telemetry, no analytics, no usage reporting.
+**Starting in 0.4.0, AgentSonar sends one anonymous session-start event per run.** The first time you run it on a machine, you'll see a one-time message in stderr explaining what's collected and how to disable it.
 
-The only network call AgentSonar's adapters make is in the OMA TypeScript adapter, which talks to a local Python sidecar at `localhost:8787` (you start it yourself). Even that is local-only; it does not reach the public internet.
+**What we send (per session):**
 
-We don't have an account system, an API key, or a remote dashboard. The HTML report is a single self-contained file you can email or share without any AgentSonar service standing up.
+- `install_id`: a random UUID stored at `~/.agentsonar/state.json`, regenerated if missing
+- `session_id`: a fresh UUID per session
+- `version`: e.g. `0.4.0`
+- `python`: e.g. `3.12`
+- `os`: e.g. `darwin`, `linux`, `win32`
+- `arch`: e.g. `arm64`, `x86_64`
+- `adapter`: which integration is active (`custom_python`, `crewai`, `langgraph`)
+- `timestamp`: epoch seconds
+
+**What we never send:**
+
+- Agent names
+- Prompts or LLM responses
+- Log content
+- Project paths or filenames
+- IP addresses (the collector doesn't log them)
+
+**To disable**, set either env var (both work):
+
+```bash
+export AGENTSONAR_TELEMETRY=off
+# or the universal opt-out:
+export DO_NOT_TRACK=1
+```
+
+Or in code, via the config dict:
+
+```python
+sonar = monitor_orchestrator(config={"telemetry": False})
+```
+
+The code-disable persists across runs (stored in `~/.agentsonar/state.json`), so you only need to set it once.
+
+**Why we added it**: at closed beta we genuinely had no idea how many people were using AgentSonar (PyPI download counts are dominated by CI traffic). Session-event telemetry gives us minimal, honest signal so we can prioritize the adapters and Python versions our actual users care about. Full rationale and exact wire format documented at [agent-sonar.com/telemetry](https://www.agent-sonar.com/telemetry).
+
+**Other than this one event**, nothing else leaves your machine. The HTML report is a self-contained file. The OMA adapter talks to a local Python sidecar on `localhost:8787` (you start it yourself). No accounts, no API keys, no remote dashboard.
 
 ## Does it need an LLM API key?
 

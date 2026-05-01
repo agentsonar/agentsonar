@@ -1,0 +1,33 @@
+# Python bytecode and build artifacts
+__pycache__/
+*.py[oc]
+*.egg-info
+build/
+dist/
+wheels/
+
+# Virtual environments
+.venv/
+venv/
+
+# AgentSonar runtime output (in case examples are run from the repo)
+agentsonar_logs/
+agentsonar_*.log
+agentsonar_*.json
+agentsonar_*.html
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Claude Code session state
+.claude/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/

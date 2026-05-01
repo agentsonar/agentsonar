@@ -49,6 +49,8 @@ PyPI: [pypi.org/project/agentsonar](https://pypi.org/project/agentsonar/) · npm
 
 No accounts. No API keys. Zero config required.
 
+> **Heads up:** starting in 0.4.0, AgentSonar sends one anonymous session-start event per run (install ID, version, OS, adapter, no agent content). On by default, opt-out with `AGENTSONAR_TELEMETRY=off` or `DO_NOT_TRACK=1`. [What's collected and why](https://www.agent-sonar.com/telemetry).
+
 ---
 
 ## Quick start by stack
