@@ -4,6 +4,31 @@ All notable changes to AgentSonar are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning
 follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1]: 2026-05-02
+
+### Fixed
+- **`monitor_orchestrator()` now accepts an `adapter` keyword argument.**
+  The 0.4.0 release shipped without this parameter, which made it
+  incompatible with `@agentsonar/oma` 0.2.1+ (the bundled sidecar calls
+  `monitor_orchestrator(_config, adapter="oma_sidecar")` to tag OMA
+  sessions correctly in telemetry). On 0.4.0 this raised
+  `TypeError: monitor_orchestrator() got an unexpected keyword argument
+  'adapter'` the moment the sidecar tried to start. Anyone running OMA
+  with `agentsonar==0.4.0` should upgrade to 0.4.1.
+
+### Added
+- New TypeScript export in companion `@agentsonar/oma 0.2.2`:
+  `recordDelegation(source, target, opts?)`. Event-stream-oriented
+  primitive for Node bus / Electron / EventEmitter integrations where
+  the existing `emitDelegations(tasks)` (task-DAG-oriented) doesn't
+  fit. See [`docs/integrations/electron-node-bus.md`](docs/integrations/electron-node-bus.md)
+  for the full integration guide.
+
+### Compatibility note
+- `agentsonar==0.4.1` paired with `@agentsonar/oma==0.2.2` is the
+  recommended combination. Older pairs (`0.4.0` + `0.2.1`) will fail at
+  sidecar startup; upgrade both.
+
 ## [0.4.0]: 2026-05-01
 
 ### Added

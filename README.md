@@ -8,8 +8,9 @@ repeating themselves, ping-pong the same handoff, or hammer the LLM
 until your credit card melts. AgentSonar watches the traffic between
 your agents in real time and can stop the loop before the next API call.
 
-Works with **CrewAI**, **LangGraph**, **OMA (TypeScript)**, or any other
-framework via our universal Python adapter. Don't see your framework?
+Works with **CrewAI**, **LangGraph**, **OMA (TypeScript)**, **Node /
+Electron buses**, or any other framework via our universal Python
+adapter. Don't see your framework?
 [Request it](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml)
 and we'll plug it in for you.
 
@@ -106,6 +107,28 @@ to the framework adapters.
 and we'll add it. We've shipped past adapters in days, not weeks.
 
 → [`docs/adapters/custom-python.md`](docs/adapters/custom-python.md): full API reference, examples for OpenAI Agents SDK / Celery / subprocesses, configuration
+
+### Node / Electron event bus (EventEmitter, custom orchestrators)
+
+For Node or Electron apps where agents communicate through a bus or
+EventEmitter, drop one line into your `send()` method:
+
+```typescript
+import { EventEmitter } from 'events'
+import { recordDelegation } from '@agentsonar/oma'
+
+class AgentBus extends EventEmitter {
+  send(from: string, to: string, message: unknown) {
+    this.emit(`agent:${to}`, { from, message })
+    recordDelegation(from, to).catch(() => {})  // fire-and-forget
+  }
+}
+```
+
+A small Python sidecar bridges to the detection engine over localhost
+HTTP. Your Node code stays Node-only.
+
+→ [`docs/integrations/electron-node-bus.md`](docs/integrations/electron-node-bus.md): full setup, troubleshooting, runnable example
 
 ### Open Multi-Agent (OMA, TypeScript)
 
