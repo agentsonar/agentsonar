@@ -63,11 +63,9 @@ roadmap for a follow-up release.
 | **Custom Python** (`monitor_orchestrator`) | ✅ Auto-raise on `delegation()` calls | Pass `prevent={...}` in config |
 | **LangGraph** (`monitor()` / `AgentSonarCallback`) | ✅ Auto-raise out of `graph.invoke()` | Pass `prevent={...}` in config |
 | **OMA** (TypeScript via sidecar) | ✅ Auto-raise on `emitDelegations()` | Start sidecar with `--prevent-cyclic-delegation` |
-| **CrewAI** (`AgentSonarListener`) | ⏸️ Deferred, CrewAI's event bus swallows listener exceptions and the framework has no native stop API. Detection-only mode works as before. |
+| **CrewAI** (`AgentSonarListener`) | 🛣 On the way | Detection works today; auto-stop is coming in a follow-up release. |
 
-For non-CrewAI users: it just works. For CrewAI users: detection still
-fires; auto-stop requires a CrewAI framework change we're tracking
-upstream.
+For non-CrewAI users: Prevent Mode just works. For CrewAI users today: detection still fires the same way — open `report.html` and you'll see every silent loop AgentSonar caught. Auto-stop for CrewAI is on the way.
 
 ## The three opt-in shapes
 
@@ -187,12 +185,6 @@ to bypass the severity gate.
 Make sure you're on `agentsonar==0.3.3` or later, earlier versions
 emitted the PREVENTED card in the HTML report but not the alerts.log
 line. `pip install --upgrade agentsonar`.
-
-**Q: Two cards in the HTML report, a normal CRITICAL one and a phantom "unknown" PREVENTED one.**
-
-You're on `agentsonar==0.3.1` or earlier. Upgrade to 0.3.2+, there
-was a fingerprint-mismatch bug between the SCC analyzer and the
-prevention event that's been fixed.
 
 **Q: How do I test Prevent Mode locally without burning real LLM credits?**
 

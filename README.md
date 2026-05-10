@@ -1,279 +1,251 @@
 # AgentSonar
 
-**Your AI agents are burning money right now.**
-*Detect agent loops and runaway token spend in real time. Stop them before the bill arrives.*
+**Coordination intelligence for AI.**
 
-When AI agents talk to each other, they fail quietly. They get stuck
-repeating themselves, ping-pong the same handoff, or hammer the LLM
-until your credit card melts. AgentSonar watches the traffic between
-your agents in real time and can stop the loop before the next API call.
+Catch the multi-agent failure modes that tracing tools miss — silent loops between agents, the same agent being called over and over with the same task, and sudden traffic spikes between agents.
 
-Works with **CrewAI**, **LangGraph**, **OMA (TypeScript)**, **Node /
-Electron buses**, or any other framework via our universal Python
-adapter. Don't see your framework?
-[Request it](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml)
-and we'll plug it in for you.
+**Today, AgentSonar supports multi-agent systems** — any setup where two or more agents talk to each other and pass work along. Use it with **CrewAI, LangGraph, custom Python orchestrators, or Node / Electron orchestrators**. If your framework isn't directly supported yet, the custom-orchestrator path works with anything you've wired together yourself.
 
-[Website](https://www.agent-sonar.com) · [Discord](https://discord.gg/cPPD4xHe) · [PyPI](https://pypi.org/project/agentsonar/) · [npm (`@agentsonar/oma`)](https://www.npmjs.com/package/@agentsonar/oma) · [Issues](https://github.com/agentsonar/agentsonar/issues)
+**Coming soon (other AI system shapes):**
 
----
+- 🛣 Single agent with tools (function-calling, retrieval, code execution)
+- 🛣 Single agent wired to MCP servers
+- 🛣 RAG pipelines (retriever → re-ranker → generator)
+- 🛣 Custom buses between agents
 
-## What you get
+One install. No accounts. No remote dashboard.
 
-**Real-time detection**: three coordination failure classes, all live today:
-
-- **Cyclic delegation**: agents stuck in a loop (reviewer never approves, planner always says "revise")
-- **Repetitive delegation**: one agent hammering another without making progress
-- **Resource exhaustion**: runaway throughput that would burn your token budget
-
-Each fires structured alerts to stderr, a JSONL timeline, a human-readable
-alerts log, and a self-contained HTML report.
-
-**🛑 Prevent Mode (opt-in)**: auto-raise on detected loops, before more LLM calls happen.
-
-![Prevent Mode tripped: cyclic_delegation stopped at 15 rotations](docs/images/prevent-error.png)
-
-→ Full Prevent Mode walkthrough: [`docs/prevent-mode.md`](docs/prevent-mode.md)
+[Website](https://www.agent-sonar.com) · [Discord](https://discord.gg/cPPD4xHe) · [PyPI](https://pypi.org/project/agentsonar/) · [npm](https://www.npmjs.com/package/agentsonar) · [Issues](https://github.com/agentsonar/agentsonar/issues)
 
 ---
 
-## Install
+## A scenario you've probably hit
+
+You wire up three agents:
+
+- A **Researcher** gathers source material.
+- A **Writer** turns the research into a draft.
+- A **Reviewer** checks the draft. If the Reviewer isn't happy, the draft goes back to the Researcher for another pass.
+
+It's a classic multi-agent setup. But there's a hidden failure mode: **what if the Reviewer is never satisfied?**
+
+The three agents keep handing work to each other. Forever. Your trace viewer shows hundreds of clean LLM calls — each one looks fine on its own. Tokens burn. The bill climbs. No one in the chain is checking whether the loop is actually making progress.
+
+AgentSonar watches the *shape* of the traffic between your agents. The moment the Researcher → Writer → Reviewer → Researcher loop crosses the threshold you set, AgentSonar fires an alert. Open the HTML report and you see the loop drawn as a graph, the rotation count, and the exact moment it tripped. Turn on **Prevent Mode** and the run halts automatically before the next LLM call.
+
+![AgentSonar HTML report showing a silent loop caught and stopped by Prevent Mode](docs/images/prevent-error.png)
+
+---
+
+## What it catches
+
+### Detect (shipped)
+
+- ✅ **Silent loops** — your Researcher gathers material and sends it to the Writer, the Writer drafts something and sends it to the Reviewer, the Reviewer flags an issue and sends it back to the Researcher. Round and round, forever. The Reviewer never approves. Tokens burn, no output ever ships.
+- ✅ **Repeated agent calls** — your Writer asks the Researcher for the same thing 47 times in a row ("find competitor pricing", "find competitor pricing", "find competitor pricing"…). The Researcher returns the same answer each time. The Writer never moves on.
+- ✅ **Traffic spikes between agents** — a sudden burst of agent-to-agent calls (the Writer fires off work to the Researcher 200 times in 30 seconds) that's wildly out of pattern with normal traffic, even if no single pair is repeating.
+
+### Prevent (shipped, opt-in)
+
+- ✅ **Auto-stop silent loops** — when a cycle between agents crosses the threshold you set, AgentSonar raises a typed `PreventError` exception. Your code catches it and stops the run before the next LLM call. (Today, Prevent Mode covers silent loops only — repeated calls and traffic spikes alert you, but won't auto-stop.)
+
+→ Full walkthrough: [`docs/prevent-mode.md`](docs/prevent-mode.md)
+
+### Coming soon
+
+- 🛣 **Deadlocks** — two agents wait on each other and neither can move. The Researcher is waiting for the Writer's brief; the Writer is waiting for the Researcher to confirm scope. Both sit there forever.
+- 🛣 **Agent stalling** — an agent goes quiet mid-task and never times out. The pipeline hangs and no error ever surfaces.
+- 🛣 **Groundless response** — agent answers customer questions without consulting any tool.
+- 🛣 **Retrieval thrash** — agentic RAG re-fetching the same content 20+ times.
+- 🛣 **MCP retry loop** — agent retries a failing MCP server forever, ignoring errors.
+- 🛣 **Cost runaway** — real-time projection: *"this cycle will cost $X if not stopped."*
+
+…and many more coordination and silent failures we're tracking. If you want a specific failure mode added, [request a feature](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml) or [open an issue](https://github.com/agentsonar/agentsonar/issues/new/choose).
+
+---
+
+## Framework support
+
+| Framework | Status |
+|---|---|
+| **Custom Python** (any framework, no orchestrator) | ✅ Shipped |
+| **Custom Node / TypeScript** (any framework, no orchestrator) | ✅ Shipped |
+| **LangGraph** | ✅ Shipped |
+| **CrewAI** | ✅ Shipped (detect-only; auto-stop on the way) |
+| **Electron / Node bus** (OMA sidecar) | ✅ Shipped |
+| **OpenAI Agents SDK** | 🛣 Coming soon |
+| **Anthropic Claude Agent SDK** | 🛣 Coming soon |
+| **AutoGen** | 🛣 Coming soon |
+
+If your framework isn't listed here, use the **Custom Python** or **Custom Node / TypeScript** path in the Quick Start below — both work with anything you've wired together yourself.
+
+---
+
+## Quick start
+
+Pick the setup that matches your framework. Each card has the install command, the minimal wire-in, and a link to the full guide.
+
+### LangGraph
 
 ```bash
-pip install agentsonar               # any framework, including your own Python code
-pip install agentsonar[crewai]       # for CrewAI
-pip install agentsonar[langgraph]    # for LangGraph / LangChain
-pip install agentsonar[all]          # crewai + langgraph
+pip install agentsonar[langgraph]
 ```
-
-PyPI: [pypi.org/project/agentsonar](https://pypi.org/project/agentsonar/) · npm: [@agentsonar/oma](https://www.npmjs.com/package/@agentsonar/oma) (TypeScript / OMA)
-
-No accounts. No API keys. Zero config required.
-
-> **Heads up:** starting in 0.4.0, AgentSonar sends one anonymous session-start event per run (install ID, version, OS, adapter, no agent content). On by default, opt-out with `AGENTSONAR_TELEMETRY=off` or `DO_NOT_TRACK=1`. [What's collected and why](https://www.agent-sonar.com/telemetry).
-
----
-
-## Quick start by stack
-
-Pick the adapter that matches yours. Each is two lines.
-
-### CrewAI
-
-```python
-from agentsonar import AgentSonarListener
-sonar = AgentSonarListener()
-# ...run your crew normally. Detection happens automatically.
-```
-
-→ [`docs/adapters/crewai.md`](docs/adapters/crewai.md)
-
-### LangGraph / LangChain
 
 ```python
 from agentsonar import monitor
-graph = monitor(graph)
-result = graph.invoke(input)
+
+graph = monitor(your_graph.compile())   # one line — that's the whole change
+graph.invoke({"input": "..."})
 ```
 
-→ [`docs/adapters/langgraph.md`](docs/adapters/langgraph.md)
+→ Full guide: [`docs/adapters/langgraph.md`](docs/adapters/langgraph.md)
 
-### Any other framework: plug in directly with Python
+### CrewAI
 
-For your own Python code, whether that's a simple `while` loop calling
-the OpenAI SDK, a script you wrote with Cursor, the OpenAI Agents SDK,
-or anything else not in the list above:
+```bash
+pip install agentsonar[crewai]
+```
+
+```python
+from agentsonar import AgentSonarListener
+
+listener = AgentSonarListener()       # auto-attaches to CrewAI's event bus
+crew.kickoff()
+listener.shutdown()
+```
+
+→ Full guide: [`docs/adapters/crewai.md`](docs/adapters/crewai.md)
+
+### Custom Python (no framework, or any framework not listed)
+
+```bash
+pip install agentsonar
+```
 
 ```python
 from agentsonar import monitor_orchestrator
 
 sonar = monitor_orchestrator()
-
-# Tell AgentSonar each time one agent hands work to another:
-sonar.delegation(source="planner", target="researcher")
-# ...run your agents normally...
+# ...your code... whenever one agent hands off to another:
 sonar.delegation(source="researcher", target="writer")
-# ...
-
 sonar.shutdown()
 ```
 
-This is the universal adapter. One explicit call per agent-to-agent
-handoff and you get the full detection + Prevent Mode surface, identical
-to the framework adapters.
+→ Full guide: [`docs/adapters/custom-python.md`](docs/adapters/custom-python.md)
 
-**Want native support for your framework instead?** Just ask,
-[open a feature request](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml)
-and we'll add it. We've shipped past adapters in days, not weeks.
+### Node / Electron
 
-→ [`docs/adapters/custom-python.md`](docs/adapters/custom-python.md): full API reference, examples for OpenAI Agents SDK / Celery / subprocesses, configuration
-
-### Node / Electron event bus (EventEmitter, custom orchestrators)
-
-For Node or Electron apps where agents communicate through a bus or
-EventEmitter, drop one line into your `send()` method:
-
-```typescript
-import { EventEmitter } from 'events'
-import { recordDelegation } from '@agentsonar/oma'
-
-class AgentBus extends EventEmitter {
-  send(from: string, to: string, message: unknown) {
-    this.emit(`agent:${to}`, { from, message })
-    recordDelegation(from, to).catch(() => {})  // fire-and-forget
-  }
-}
+```bash
+npm install agentsonar
 ```
 
-A small Python sidecar bridges to the detection engine over localhost
-HTTP. Your Node code stays Node-only.
+```javascript
+import { AgentSonar } from 'agentsonar'
 
-→ [`docs/integrations/electron-node-bus.md`](docs/integrations/electron-node-bus.md): full setup, troubleshooting, runnable example
-
-### Open Multi-Agent (OMA, TypeScript)
-
-```typescript
-import { emitDelegations, createTraceHandler, shutdown } from '@agentsonar/oma'
-// + run a small Python sidecar that bridges to the engine
+const sonar = new AgentSonar({})
+sonar.delegation('researcher', 'writer')
+await sonar.shutdown()
 ```
 
-→ [`docs/adapters/oma.md`](docs/adapters/oma.md)
+→ Full guide: [`docs/adapters/`](docs/adapters/) (Node-side adapter docs)
 
----
+### After your run
 
-## Prevent Mode: stop the loop before the bill arrives
-
-Detection alone tells you what happened. **Prevent Mode** raises an
-exception the moment a tracked failure crosses the trip threshold,
-letting your code stop a runaway loop before the next LLM call.
-
-```python
-from agentsonar import monitor_orchestrator, PreventError
-
-sonar = monitor_orchestrator(config={
-    "prevent": {"cyclic_delegation": True}
-})
-
-try:
-    while True:
-        sonar.delegation("reviewer", "generator")
-        # ...your agents run...
-        sonar.delegation("generator", "reviewer")
-        # ...
-except PreventError as e:
-    print(f"Stopped: {e.reason}")
-    print(f"Cycle:   {' -> '.join(e.cycle_path)}")
-
-sonar.shutdown()
+```bash
+open agentsonar_logs/run-<latest>/report.html
 ```
 
-Available in the **Custom Python**, **LangGraph**, and **OMA (TypeScript)**
-adapters today. Off by default. Opt in with one config key.
-
-→ [`docs/prevent-mode.md`](docs/prevent-mode.md): full guide: trip thresholds, escape hatch, how to use with any adapter
+That's it. No API keys. No setup beyond the install.
 
 ---
 
-## Configuration
+## How AgentSonar is different from tracing
 
-The two-line install uses sensible defaults. To tune:
+AgentSonar is a *failure detector*, not a *trace viewer*. Tracing tools show you what happened. AgentSonar tells you when something is going wrong, while it's still going wrong — and optionally stops it.
 
-```python
-sonar = monitor_orchestrator(config={
-    "warning_threshold":  5,    # alert at this rotation count
-    "critical_threshold": 15,   # escalate at this count
-    "prevent": {"cyclic_delegation": True},  # opt-in Prevent Mode
-})
+---
+
+## Install
+
+### Python
+
+```bash
+pip install agentsonar               # works with any Python framework
+pip install agentsonar[crewai]       # CrewAI
+pip install agentsonar[langgraph]    # LangGraph / LangChain
+pip install agentsonar[all]          # all of the above
 ```
 
-Twenty-plus more knobs (rate-limit windows, decay half-life, log dir,
-report titles, …), all documented at:
+### Node / Electron
 
-→ [`docs/configuration.md`](docs/configuration.md)
+```bash
+npm install agentsonar
+```
 
----
-
-## What it produces
-
-Every run writes four output files to `agentsonar_logs/run-<slug>/`:
-
-| File | When | Purpose |
-|---|---|---|
-| `timeline.jsonl` | live | Every event, one JSON object per line. `tail -f` it during a run. |
-| `alerts.log` | live | Signal-only, human-readable. The "just show me the problems" view. |
-| `report.json` | shutdown | Structured summary, deduped + inhibited. Pipe into your dashboard. |
-| `report.html` | shutdown | Standalone report, no external CSS / JS / network. Email it. |
-
-The HTML report has two top-level tabs:
-
-**1. Coordination Failures**: primary signal. One card per detected failure with severity badge, fingerprint, and expandable topology / threshold / impact blocks.
-
-![Coordination Failures tab: primary signal](docs/images/coordination-failures.png)
-
-**2. Session Activity**: INFO-level context. Edge Activity (per-edge fire counts) + Chronological Log (every event with row-coloring on alerts).
-
-![Session Activity tab: Edge Activity view](docs/images/session-activity.png)
+> **Heads up:** AgentSonar sends one anonymous session-start event per run (install ID, version, OS, adapter, no agent content). On by default, opt-out with `AGENTSONAR_TELEMETRY=off` or `DO_NOT_TRACK=1`. [What's collected and why](https://www.agent-sonar.com/telemetry).
 
 ---
 
-## Validated against frontier models
+## Examples (5 minutes, no API key)
 
-Skeptical that top-tier models like Claude Sonnet 4.5 or Gemini actually
-get stuck in loops? They do, and smarter models make it *worse*, not
-better, because a more capable reviewer finds more subtle issues to flag
-on every pass. We reproduced three coordination-failure scenarios on real
-LangGraph workloads running Sonnet 4 and Opus 4.6 with natural,
-non-rigged prompts. AgentSonar flagged each one in real time.
+Three runnable before/after examples in this repo. Each one is a complete folder with its own `README.md` that walks you through the run step by step. **Open the folder's README first — it has the exact commands.**
+
+### How to get them
+
+**Option 1 — clone the whole repo (recommended):**
+
+```bash
+git clone https://github.com/agentsonar/agentsonar-public.git
+cd agentsonar-public/examples/custom-python   # or langgraph / node
+# then follow that folder's README.md
+```
+
+**Option 2 — copy individual files from GitHub:** open the folder link below, click any file, hit the "Raw" button, and copy the contents into your own project.
+
+### The three examples
+
+| Example | Stack | What it shows | Folder README |
+|---|---|---|---|
+| **Custom Python** | Plain Python, no framework | Researcher → Writer → Reviewer silent loop. Run `before/pipeline.py`, see no signal. Run `after/detect.py`, see the loop caught. Run `after/prevent.py`, see it stopped. | [`examples/custom-python/README.md`](examples/custom-python/README.md) |
+| **LangGraph** | Python + LangGraph | Same scenario, expressed as a LangGraph state graph. | [`examples/langgraph/README.md`](examples/langgraph/README.md) |
+| **Node / TypeScript** | Node + tsx | Same scenario in TypeScript. `npm run before` (silent burn), `npm run detect` (loop caught), `npm run prevent` (auto-stopped). | [`examples/node/README.md`](examples/node/README.md) |
+
+Every folder also includes a one-page `what-changed.md` showing the literal one-line diff that adds AgentSonar — handy for reviewing what actually changes in your own code.
 
 ---
 
-<a id="whats-next"></a>
-## What's next
+## Using the OMA sidecar?
 
-AgentSonar today ships **Detection** + **Prevent Mode**. Same graph,
-different products on the same substrate:
-
-| Next | Rough timing | What it unlocks |
-|---|---|---|
-| **OpenAI Agents SDK + Claude Agent SDK** native adapters | ~2–3 weeks | Same one-import integration as CrewAI / LangGraph for the two SDKs most teams build agents on right now. (For now, the [Python adapter](docs/adapters/custom-python.md) works as a bridge.) |
-| **Cost attribution** (FinOps) | ~6 weeks | Token cost per agent AND per delegation edge. Answers *"which coordination pattern burned the most this week?"* without leaving the tool. |
-| **Dynamic-delegation tracking** | ~8 weeks | Instrument runtime handoff patterns (e.g. `delegate_to_agent` tools, OpenAI handoffs) that static adapters under-capture today. |
-| **Governance / audit trails** | longer | EU AI Act Article 12 logs, SOC 2 decision lineage, the compliance tier enterprises will need before the August 2026 EU enforcement date hits. |
-
-If there's a specific detector or expansion area you'd want moved up,
-[open an issue](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml), feature priority is driven by real user requests.
+The `@agentsonar/oma` adapter still works. Its repo lives at [`agentsonar-oma`](https://github.com/agentsonar/agentsonar-oma). The native `agentsonar` package covers most use cases directly; if you're starting fresh, use `agentsonar`.
 
 ---
 
 ## Documentation
 
-For the full guide, start at [`docs/README.md`](docs/README.md). Quick jumps:
-
 | Topic | Where |
 |---|---|
-| **Start here**: full docs index with reading order | [`docs/README.md`](docs/README.md) |
-| **Adapters**: per-framework integration guides | [`docs/adapters/`](docs/adapters/) |
-| **Prevent Mode**: opt-in auto-stop on detected failures | [`docs/prevent-mode.md`](docs/prevent-mode.md) |
-| **Configuration**: the full 20+ config knobs | [`docs/configuration.md`](docs/configuration.md) |
-| **Concepts**: what's a cycle, what's coordination failure (plain English) | [`docs/concepts.md`](docs/concepts.md) |
-| **Examples**: real scenarios with concrete dollar pain | [`docs/examples/`](docs/examples/) |
-| **Validation**: alert output on real frontier-model workloads | [`docs/VALIDATION.md`](docs/VALIDATION.md) |
-| **FAQ**: common questions, answered | [`docs/faq.md`](docs/faq.md) |
+| **Start here**: full docs index | [`docs/README.md`](docs/README.md) |
+| **Adapters**: per-framework setup | [`docs/adapters/`](docs/adapters/) |
+| **Prevent Mode**: opt-in auto-stop | [`docs/prevent-mode.md`](docs/prevent-mode.md) |
+| **Configuration**: every config knob | [`docs/configuration.md`](docs/configuration.md) |
+| **Concepts**: what AgentSonar catches, in plain English | [`docs/concepts.md`](docs/concepts.md) |
+| **Validation**: how the engine is tested | [`docs/VALIDATION.md`](docs/VALIDATION.md) |
+| **FAQ** | [`docs/faq.md`](docs/faq.md) |
+
+Release notes: [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
-## Current status
+## Status
 
 **Closed beta, expanding.** Apache-2.0 licensed.
 
 This public repo exists for:
 
-- **Issues tab**: bug reports, feature requests, questions ([templates](https://github.com/agentsonar/agentsonar/issues/new/choose))
+- **Issues**: bug reports, feature requests, questions ([templates](https://github.com/agentsonar/agentsonar/issues/new/choose))
 - **Discussions**: feedback, integration questions, show-and-tell
-- **Release notes**: [`CHANGELOG.md`](CHANGELOG.md)
 
-If you'd like to be considered as a design partner, open an issue
-describing your multi-agent workload and we'll follow up.
+If you'd like to be considered as a design partner, open an issue describing your multi-agent workload and we'll follow up.
 
 ---
 
@@ -281,15 +253,7 @@ describing your multi-agent workload and we'll follow up.
 
 - **Open an issue**: fastest, public, searchable: [bug](https://github.com/agentsonar/agentsonar/issues/new?template=bug_report.yml) · [feature request](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml) · [feedback](https://github.com/agentsonar/agentsonar/issues/new?template=feedback.yml)
 - **Email**: [agentsonarai@gmail.com](mailto:agentsonarai@gmail.com) for private feedback, design partner inquiries, security reports
-
-## Links
-
-- Website: [agent-sonar.com](https://www.agent-sonar.com)
-- Discord: [discord.gg/cPPD4xHe](https://discord.gg/cPPD4xHe)
-- PyPI: [`agentsonar`](https://pypi.org/project/agentsonar/)
-- npm (TypeScript / OMA): [`@agentsonar/oma`](https://www.npmjs.com/package/@agentsonar/oma)
-- Validation: [`docs/VALIDATION.md`](docs/VALIDATION.md)
-- Changelog: [`CHANGELOG.md`](CHANGELOG.md)
+- **Discord**: [discord.gg/cPPD4xHe](https://discord.gg/cPPD4xHe)
 
 ## License
 

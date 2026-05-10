@@ -2,7 +2,7 @@
 
 This page is for anyone who saw "coordination intelligence for multi-agent AI" and thought: *what does that even mean?*
 
-If you've ever built an agent loop and watched your OpenAI bill keep climbing while nothing useful seemed to be happening, this page will tell you exactly what AgentSonar catches and why your existing logs probably missed it.
+If you've ever shipped a multi-agent system and seen tokens burn for minutes with no useful output — agents passing work back and forth, the same tool called over and over, no error, no signal — this page explains what AgentSonar catches and why a normal trace viewer didn't show you the problem.
 
 ## What is "multi-agent" in the first place?
 
@@ -28,9 +28,9 @@ planner -> researcher -> writer -> reviewer
 
 When agents talk in a loop like the one above, the system can keep running long after the actual useful work is done. That's a coordination failure.
 
-## The three failure modes AgentSonar catches today
+## The failure modes AgentSonar catches today
 
-### 1. Cyclic delegation (the loop that won't end)
+### 1. Silent loops (the loop that won't end)
 
 **Plain English:** two or more agents are passing the same work back and forth without making progress.
 
@@ -42,7 +42,7 @@ When agents talk in a loop like the one above, the system can keep running long 
 
 **What AgentSonar shows:** a CRITICAL alert with the exact cycle path (`reviewer -> generator -> reviewer`), a rotation count, and a recommendation telling you which agent to inspect first.
 
-### 2. Repetitive delegation (one agent hammering another)
+### 2. Repeated tool calls (one agent hammering another)
 
 **Plain English:** one agent keeps calling the same target agent over and over, even though the calls aren't making forward progress.
 
@@ -50,11 +50,11 @@ When agents talk in a loop like the one above, the system can keep running long 
 
 **Real example:** a `planner` that decomposes a task into subtasks, sends them all to a single `executor`, the executor fails or returns something the planner wants to revise, and the planner re-sends. The wording differs every round (so a string-match check would fail to spot it), but the structure is the same: planner -> executor, planner -> executor, planner -> executor.
 
-**Why it's subtle:** there's no exact-string repetition. The text content keeps changing. Only a structural watcher counting traffic on a specific edge over time can spot it.
+**Why it's subtle:** there's no exact-string repetition. The text content keeps changing. Only a watcher that tracks the *shape* of agent traffic over time can spot it.
 
-**What AgentSonar shows:** an alert tagged `repetitive_delegation` with the source and target agent, the firing frequency, and the time window over which the spike happened.
+**What AgentSonar shows:** a repeated-call alert with the source and target agent, the firing frequency, and the time window over which the spike happened.
 
-### 3. Resource exhaustion (the runaway throughput)
+### 3. Runaway token / tool spend (the throughput spiral)
 
 **Plain English:** the total volume of agent-to-agent calls suddenly spikes far past what your system normally produces.
 
@@ -64,7 +64,7 @@ When agents talk in a loop like the one above, the system can keep running long 
 
 **Why standard tracing misses it:** most tracing tools record events one at a time. They don't model rate. By the time a human notices the trace volume, the bill is already in the hundreds.
 
-**What AgentSonar shows:** a `resource_exhaustion` alert when either a single edge or the whole graph crosses a configurable rate limit (default: 10 events per edge or 200 events total in any 180-second window).
+**What AgentSonar shows:** a runaway-spend alert when either a single agent-to-agent pair or the whole system crosses a configurable rate limit (default: 10 calls per pair or 200 calls total in any 180-second window).
 
 ## Why standard logging and tracing miss this
 
@@ -72,11 +72,11 @@ Standard tools (LangSmith, OpenLLMetry, Sentry, Helicone, raw OpenAI logs) are g
 
 What they do not do, by default:
 
-1. **Detect cycles in the call graph in real time.** Cycles only become visible if you visualize the trace after the run ends. By then, the run cost what it cost.
-2. **Spot structurally repetitive traffic where the prompts differ.** A repetitive-delegation pattern looks like 200 unrelated calls to a string-matcher. To a graph watcher, it's one edge firing 200 times.
+1. **Spot silent loops in real time.** Loops only become visible if you visualize the trace after the run ends. By then, the run cost what it cost.
+2. **Spot repeated calls when the prompts differ.** A repeated-call pattern looks like 200 unrelated calls to a string-matcher. To AgentSonar, it's one pair of agents talking 200 times.
 3. **Stop a run mid-flight.** Tracing tools observe. They don't intervene. If you want to stop a runaway loop before the next API call, you need a tool that participates in your runtime.
 
-That's the gap AgentSonar fills. It watches the same agent traffic, but with three structural detectors that fire as the run is happening, plus an opt-in `PreventError` that can interrupt the run when a known-bad pattern crosses a threshold.
+That's the gap AgentSonar fills. It watches the *shape* of your agent traffic as the run is happening, and offers an opt-in `PreventError` that can interrupt the run when a known-bad pattern crosses a threshold.
 
 ## Next steps
 

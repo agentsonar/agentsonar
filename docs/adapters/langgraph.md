@@ -70,9 +70,9 @@ Two minimal scripts you can copy and run:
 
 ## What gets detected
 
-Every node transition in your graph becomes a delegation edge. The same three failure classes apply: `cyclic_delegation`, `repetitive_delegation`, and `resource_exhaustion`.
+Every node transition in your graph becomes a delegation edge. AgentSonar's full alert surface applies: silent loops, repeated tool calls, and runaway token / tool spend.
 
-Each new `graph.invoke()` starts a fresh detection session. Sequential invokes don't share cycle history with each other.
+Each new `graph.invoke()` starts a fresh detection session. Sequential invokes don't share loop history with each other.
 
 ## Config
 

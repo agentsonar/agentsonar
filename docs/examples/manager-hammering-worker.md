@@ -28,7 +28,7 @@ The planner is in a slow-motion loop with itself, mediated by the executor. Each
 
 A traditional logging tool sees 50 distinct prompts and 50 distinct completions. It looks like productive work.
 
-A graph-aware tool sees one edge (`planner -> executor`) firing 50 times in a window where it normally fires 3 to 5 times. That's a structural anomaly.
+AgentSonar sees the same pair (`planner -> executor`) talking 50 times in a window where it normally talks 3 to 5 times. That's the kind of shift it flags.
 
 ## What you'll see in your bill
 
@@ -66,24 +66,24 @@ for _ in range(20):
 sonar.shutdown()
 ```
 
-When the `planner -> executor` edge fires more often than the engine's exponentially-decayed baseline expects (roughly: more than `z_score_threshold=3.0` standard deviations above the running mean, with at least `min_total_events=20` events recorded), you'll see:
+When the `planner -> executor` traffic looks unusual compared to the rest of the system, you'll see a repeated-call alert:
 
 ```
-[SONAR ...] WARNING repetitive_delegation: planner -> executor (firing 4.2 sigma above baseline)
+[SONAR ...] WARNING repeated calls: planner -> executor (firing well above baseline)
 ```
 
 The HTML report card shows:
 
-- Failure class: `repetitive_delegation`
-- Edge: `planner -> executor`
+- Failure: repeated tool calls
+- Pair: `planner -> executor`
 - Frequency: actual rate vs. baseline rate
 - Recommendation: the source agent needs an explicit exit condition or a different decomposition strategy.
 
 ## Why this isn't covered by Prevent Mode (yet)
 
-`repetitive_delegation` fires alerts but does not currently raise `PreventError`. Today, only `cyclic_delegation` is in scope for Prevent Mode. Repetitive and resource-exhaustion auto-stop are on the roadmap.
+The repeated-call signal fires alerts but does not currently raise `PreventError`. Today, only the silent-loop guard is in scope for Prevent Mode. Auto-stop on repeated calls and runaway spend is on the roadmap.
 
-In the meantime, you can poll `sonar.engine.get_recent_events()` between iterations and break the loop yourself:
+In the meantime, you can poll between iterations and break the loop yourself:
 
 ```python
 for _ in range(20):
@@ -91,7 +91,7 @@ for _ in range(20):
     result = executor.run(plan)
     # ...
 
-    # Check for any active repetitive_delegation alert before continuing
+    # Check for any active repeated-call alert before continuing
     events = sonar.engine.get_recent_events()
     if any(e.failure_class.value == "repetitive_delegation" for e in events):
         print("Bailing: planner is hammering executor.")
@@ -109,12 +109,12 @@ If neither fix is feasible, lower `z_score_threshold` to fire alerts earlier:
 
 ```python
 sonar = monitor_orchestrator(config={
-    "z_score_threshold": 2.0,  # fire at 2 sigma instead of 3
+    "z_score_threshold": 2.0,  # raise sensitivity
 })
 ```
 
 ## Related
 
-- [Concepts](../concepts.md): why "edge frequency over a sliding window" catches what string-matching can't.
-- [Configuration reference](../configuration.md): the repetitive detector's tuning knobs (`half_life_seconds`, `z_score_threshold`, etc.).
-- [Reviewer never approves example](reviewer-never-approves.md): the cyclic cousin of this failure, where two agents share the loop instead of one being the obvious culprit.
+- [Concepts](../concepts.md): why watching the shape of agent traffic catches what string-matching can't.
+- [Configuration reference](../configuration.md): the repeated-call sensitivity knobs.
+- [Reviewer never approves example](reviewer-never-approves.md): the silent-loop cousin of this failure, where two agents share the loop instead of one being the obvious culprit.

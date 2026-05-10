@@ -128,5 +128,5 @@ AgentSonar catching the loop tells you the structural problem exists. The fix li
 ## Related
 
 - [Prevent Mode walkthrough](../prevent-mode.md): all the trip thresholds and escape hatches.
-- [Concepts](../concepts.md): why this is a "cyclic delegation" structurally and not just "agent A is wrong."
+- [Concepts](../concepts.md): why this is a "silent loop" between agents and not just "agent A is wrong."
 - [Custom Python adapter](../adapters/custom-python.md): the universal way to wire AgentSonar into any Python loop.

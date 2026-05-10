@@ -20,9 +20,9 @@ handoffs, and runaway throughput in your bus.
 
 Once wired in, AgentSonar will:
 
-- Detect when two of your agents get stuck handing work back and forth (`cyclic_delegation`)
-- Detect when one agent is hammering another past the rolling baseline (`repetitive_delegation`)
-- Detect when traffic on any single edge spikes past a rate limit (`resource_exhaustion`)
+- Detect silent loops where two agents get stuck handing work back and forth
+- Detect repeated tool calls where one agent is hammering another past its baseline
+- Detect runaway token / tool spend when traffic between agents spikes past a rate limit
 - Stream alerts (WARNING + CRITICAL) to stderr in real time
 - Write a self-contained HTML report at session end (no external CSS / JS / network)
 
@@ -246,7 +246,7 @@ python node_modules/@agentsonar/oma/sidecar/sidecar.py \
 | `--warning-threshold` | `5` | Rotation count for the first WARNING |
 | `--critical-threshold` | `15` | Rotation count for CRITICAL |
 | `--per-edge-limit` | `10` | Max events on one edge in the window before `resource_exhaustion` fires |
-| `--window-size` | `180.0` | Sliding window in seconds |
+| `--window-size` | `180.0` | Time window in seconds |
 | `--prevent-cyclic-delegation` | off | Enable Prevent Mode (see above) |
 | `--prevent-max-rotations` | off | Trip Prevent Mode at exactly N rotations regardless of severity |
 
@@ -336,7 +336,7 @@ python node_modules/@agentsonar/oma/sidecar/sidecar.py
 node integration-example.mjs
 ```
 
-After 2 seconds, open the latest report in `agentsonar_logs/`. You'll see the cycle detected with both `cyclic_delegation` (CRITICAL at 15 rotations) and `resource_exhaustion` (the rate limiter firing on the tight loop).
+After 2 seconds, open the latest report in `agentsonar_logs/`. You'll see the silent loop detected (CRITICAL at 15 rotations) along with a runaway-spend alert from the tight loop tripping the rate limit.
 
 ## Questions / blockers
 

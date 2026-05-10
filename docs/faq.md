@@ -89,11 +89,11 @@ Yes. Specifically:
 
 If you're nervous about the exception path in production, run with `prevent={"cyclic_delegation": True, "raise": False}` first. That mode logs trips without raising, so you can verify the alerts are correct before flipping the switch on auto-stop.
 
-## What if the same cycle gets detected over and over?
+## What if the same loop gets detected over and over?
 
-The engine deduplicates alerts by a fingerprint (the failure class plus the sorted set of agents involved). The same cycle won't generate 50 cards in your HTML report; it generates one card with the highest-severity status it reached.
+AgentSonar deduplicates alerts so the same loop won't generate 50 cards in your HTML report. You get one card showing the highest-severity status the loop reached.
 
-In `alerts.log`, you'll see the WARNING and CRITICAL transitions for the same cycle, plus a PREVENTED line if Prevent Mode tripped. The HTML report shows the deduped result.
+In `alerts.log`, you'll see the WARNING and CRITICAL transitions for the same loop, plus a PREVENTED line if Prevent Mode tripped. The HTML report shows the deduped result.
 
 ## What happens to detection if my agents talk to themselves (A -> A)?
 

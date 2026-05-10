@@ -38,11 +38,11 @@ Two minimal scripts you can copy and run:
 
 ## What gets detected
 
-Every agent-to-agent delegation in your crew is recorded automatically. Three failure classes can fire:
+Every agent-to-agent delegation in your crew is recorded automatically. AgentSonar can fire three kinds of alerts:
 
-- `cyclic_delegation`: when delegation paths form a cycle (reviewer -> planner -> reviewer).
-- `repetitive_delegation`: when one agent's outgoing edge spikes above its rolling baseline.
-- `resource_exhaustion`: when total or per-edge throughput crosses the rate limiter.
+- **Silent loops** (`cyclic_delegation`): when delegation paths form a circle (reviewer -> planner -> reviewer).
+- **Repeated tool calls** (`repetitive_delegation`): when one agent keeps hammering another past its baseline.
+- **Runaway token / tool spend** (`resource_exhaustion`): when total or per-pair traffic crosses the rate limit.
 
 ## Config
 

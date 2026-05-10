@@ -63,7 +63,7 @@ All flags map to AgentSonar config keys. Defaults match the Python SDK.
 | `--per-edge-limit` | `10` | `per_edge_limit` |
 | `--global-limit` | `200` | `global_limit` |
 
-#### Repetitive detector
+#### Repeated-call sensitivity
 
 | Flag | Default | Maps to config key |
 |---|---|---|

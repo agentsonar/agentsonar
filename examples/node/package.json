@@ -1,0 +1,19 @@
+{
+  "name": "agentsonar-node-example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Before/after Node example: a Researcher / Writer / Reviewer silent loop, caught by AgentSonar.",
+  "scripts": {
+    "before": "tsx before/pipeline.ts",
+    "detect": "tsx after/detect.ts",
+    "prevent": "tsx after/prevent.ts"
+  },
+  "dependencies": {
+    "agentsonar": "^0.3.0-alpha.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

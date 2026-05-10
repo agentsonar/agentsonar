@@ -138,7 +138,7 @@ sonar = monitor_orchestrator(config={
     # Rate limiter, when does runaway throughput fire `resource_exhaustion`?
     "per_edge_limit":  10,       # max events per edge in window (default 10)
     "global_limit":    200,      # max total events in window  (default 200)
-    "window_size":     180.0,    # sliding window in seconds   (default 180)
+    "window_size":     180.0,    # time window in seconds      (default 180)
 
     # Prevent Mode (opt-in)
     "prevent": {"cyclic_delegation": True},
