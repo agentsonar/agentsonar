@@ -2,6 +2,20 @@
 
 Copy-paste only.
 
+## Try the demo (5 seconds, either language)
+
+```bash
+# Python
+pip install agentsonar && agentsonar demo
+
+# Node
+npm install agentsonar && npx agentsonar demo
+```
+
+Bundled hello-world: three agents loop forever in a silent failure, AgentSonar catches it at the 5th rotation, stops the run, and writes an HTML report you can open in your browser. No config required.
+
+> **`agentsonar: command not found`?** Use `python -m agentsonar demo` — it's equivalent and works without `agentsonar` being on your PATH (helpful on Windows, in unactivated virtual environments, or in sandboxed installs).
+
 ## Python (5 lines)
 
 ```bash

@@ -83,7 +83,29 @@ If your framework isn't listed here, use the **Custom Python** or **Custom Node 
 
 ## Quick start
 
-Pick the setup that matches your framework. Each card has the install command, the minimal wire-in, and a link to the full guide.
+### Try it in 5 seconds (no framework)
+
+After installing AgentSonar (either language), run the bundled demo to see it work end-to-end:
+
+```bash
+# Python
+pip install agentsonar
+agentsonar demo
+# (or: `python -m agentsonar demo` — works without `agentsonar` on PATH,
+#  helpful on Windows or inside an unactivated virtual environment)
+
+# Node
+npm install agentsonar
+npx agentsonar demo
+```
+
+Three agents (Researcher → Writer → Reviewer) get stuck in a silent loop. The Reviewer never approves, so the work bounces forever. AgentSonar catches the loop at the 5th rotation, stops the run, and writes a self-contained HTML report you can open in your browser. No config, no API keys, no external dependencies — useful both as a smoke test (confirms the install worked) and as a 30-second walkthrough of the product.
+
+The same scenario, the same output, runs identically on both SDKs.
+
+### Pick your framework
+
+Now wire AgentSonar into your real code. Each card has the install command, the minimal wire-in, and a link to the full guide.
 
 ### LangGraph
 
