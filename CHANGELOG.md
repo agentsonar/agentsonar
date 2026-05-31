@@ -4,6 +4,57 @@ All notable changes to AgentSonar are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning
 follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.7]: 2026-05-29
+
+### Fixed
+- Claude Code: subagent-explosion now counts genuinely concurrent subagents
+  correctly. Each spawn is keyed by its unique tool-call id, so a burst of
+  parallel subagents trips detection (and Prevent Mode) as intended, and
+  sequential subagents no longer accumulate into a false alarm.
+
+## [0.6.6]: 2026-05-28
+
+### Changed
+- Prevent Mode on Claude Code now defaults to "ask": when a failure trips,
+  Claude Code prompts you to approve the tool call or stop, rather than hard
+  blocking. Set `AGENTSONAR_PREVENT_DECISION=deny` for the hard block (exit 2).
+- Alert severity scales with magnitude, so a brief stall and a long one no
+  longer look identical.
+
+## [0.6.5]: 2026-05-27
+
+### Added
+- Context-window cliff detection: AgentSonar warns as a session fills the
+  model's context window toward quality degradation and the next autocompact,
+  using the real token counts (LangGraph via `on_llm_end`, Claude Code via the
+  session transcript).
+- Failed-tool retry storm detection: catches an agent hammering the same
+  failing tool or endpoint instead of stopping.
+
+## [0.6.3]: 2026-05-24
+
+### Added
+- Redundant-work detection: the same tool called again with identical
+  arguments, returning nothing new.
+- Subagent-explosion detection: a runaway fan-out of subagents spawned at once.
+- Stuck / hung tool-call detection (agent stalling), including hung MCP servers.
+
+## [0.6.0]: 2026-05-21
+
+### Added
+- Prevent Mode generalized to every shipped failure class (previously cyclic
+  delegation only). Arm any class with its own threshold, or `prevent_all` to
+  arm them all at once. `check_prevent()` raises `PreventError` before the next
+  call.
+
+## [0.5.0]: 2026-05-17
+
+### Added
+- Claude Code adapter. AgentSonar plugs into Claude Code through its hooks
+  system and runs in both the terminal CLI and the desktop app. Install with
+  `agentsonar install-claude-hooks` (merge-safe). Content-blind: tool inputs,
+  outputs, prompts, and file contents are never read or stored.
+
 ## [0.4.1]: 2026-05-02
 
 ### Fixed

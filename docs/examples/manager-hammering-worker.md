@@ -81,7 +81,7 @@ The HTML report card shows:
 
 ## Why this isn't covered by Prevent Mode (yet)
 
-The repeated-call signal fires alerts but does not currently raise `PreventError`. Today, only the silent-loop guard is in scope for Prevent Mode. Auto-stop on repeated calls and runaway spend is on the roadmap.
+The repeated-call signal can also auto-stop: add `prevent={"repetitive_delegation": {"max_events": N}}` and AgentSonar raises `PreventError` once the same edge fires N times. (Prevent Mode now spans every shipped failure class, not just silent loops.)
 
 In the meantime, you can poll between iterations and break the loop yourself:
 

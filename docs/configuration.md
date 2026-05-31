@@ -80,9 +80,10 @@ When the loop hits 10 rotations, your next `sonar.delegation(...)` call raises a
 | **Silent-loop alerts** | `warning_threshold`, `critical_threshold`, `re_alert_interval`, `resolve_after_seconds` | When the silent-loop detector raises a warning, when it escalates, and when it resolves |
 | **Runaway-spend alerts** | `window_size`, `per_edge_limit`, `global_limit` | When AgentSonar flags a sudden spike in agent traffic |
 | **Repeated-call alerts** | `half_life_seconds`, `z_score_threshold`, `hard_weight_limit`, `min_edges_for_zscore`, `min_total_events` | Sensitivity for the repeated-call detector |
+| **Tool-level detectors** | `redundant_tool_*`, `subagent_*`, `stuck_*`, `retry_storm_*`, `context_cliff_*`, `model_context_size_tokens` | Sensitivity for redundant work, subagent explosion, stuck/hung tool calls, failed-tool retry storms, and the context-window cliff |
 | **Periodic re-check** | `scc_interval_seconds`, `scc_interval_events` | How often AgentSonar runs a backup pass over the full agent graph |
 | **Output** | `log_dir`, `console_output`, `file_output`, `log_level`, `keep_runs`, `report_title`, `auto_export_on_shutdown` | Where alerts and reports go |
-| **Prevent Mode** | `prevent` | Auto-stop on detected silent loops (opt-in) |
+| **Prevent Mode** | `prevent` | Auto-stop on any shipped failure class (opt-in) |
 
 ## Silent-loop alert thresholds
 
@@ -238,7 +239,7 @@ Enables Prevent Mode. Three valid shapes:
 
 The trip is detected but no exception is thrown. Poll `sonar.engine.should_prevent()` between operations to check if a trip occurred.
 
-Today, only the silent-loop guard is supported in Prevent Mode. The repeated-call and runaway-spend signals are detection-only.
+Prevent Mode covers all of AgentSonar's shipped failure classes — silent loops, repeated calls, runaway spend, redundant work, subagent explosion, stuck/hung tool calls, failed-tool retry storms, and the context-window cliff. Arm any class with its own threshold key, or turn them all on with `"prevent_all": True`. (CrewAI remains detect-only for now.)
 
 ## Tuning recipes
 

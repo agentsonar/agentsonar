@@ -1,6 +1,6 @@
 # Validation
 
-AgentSonar's detection engine is validated via 663 unit tests, property-based fuzzing, and a 10,000-case differential fuzz suite against a reference implementation. Test code is open under `agentsonar-sdk/tests/` and `agentsonar-npm/tests/`.
+AgentSonar's detection engine is validated via more than 2,000 unit tests across the Python and TypeScript engines, property-based fuzzing, and a 10,000-case differential fuzz suite against a reference implementation. Test code is open under `agentsonar-sdk/tests/` and `agentsonar-npm/tests/`.
 
 ## Validated against frontier models
 

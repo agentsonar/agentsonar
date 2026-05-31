@@ -221,9 +221,8 @@ result = planner.run("…")
 sonar.shutdown()
 ```
 
-When the native OpenAI Agents SDK adapter ships (~2-3 weeks), this
-bridge becomes a one-line `from agentsonar import monitor_openai_agent`
-swap.
+When the native OpenAI Agents SDK adapter ships, this bridge becomes a
+one-line `from agentsonar import monitor_openai_agent` swap.
 
 ### Celery agent pipeline
 

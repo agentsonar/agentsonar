@@ -103,7 +103,7 @@ If you don't want self-loops counted, filter them at the call site before passin
 
 ## Can I use AgentSonar with the OpenAI Agents SDK / AutoGen / Pydantic AI?
 
-Yes, via the [Custom Python adapter](adapters/custom-python.md). Native adapters for the OpenAI Agents SDK and Claude Agent SDK are on the near-term roadmap (~2-3 weeks). In the meantime, calling `sonar.delegation(source, target)` from inside your handoff hook gives you the same detection as a native adapter.
+Yes, via the [Custom Python adapter](adapters/custom-python.md): call `sonar.delegation(source, target)` from inside your handoff hook and you get the same detection as a native adapter. A native OpenAI Agents SDK adapter is on the roadmap. (Claude Code already has a native adapter, in both the terminal CLI and the desktop app.)
 
 If your framework isn't covered and you'd like a native adapter, [open a feature request](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml). We genuinely want to add new framework support; past adapters have shipped in days, not weeks.
 

@@ -51,10 +51,14 @@ That's it. Two changes to a regular AgentSonar setup:
 
 ## What gets covered
 
-Today, Prevent Mode handles **`cyclic_delegation`**: agents stuck in a
-loop. The other two failure classes (`repetitive_delegation`,
-`resource_exhaustion`) are detection-only for now; they're on the
-roadmap for a follow-up release.
+Prevent Mode spans **all of AgentSonar's shipped failure classes**, not just
+silent loops — cyclic delegation, repetitive delegation, resource exhaustion,
+redundant work, subagent explosion, stuck/hung tool calls, failed-tool retry
+storms, and the context-window cliff. Arm one class with its own threshold
+(`{"cyclic_delegation": {"max_rotations": 5}}`, `{"cascade_failure":
+{"max_consecutive_errors": 3}}`, and so on), or turn them all on at once with
+`{"prevent_all": True}`. (CrewAI is the one exception today: detection works,
+auto-stop is on the way — see the table below.)
 
 ## Adapter support
 
@@ -62,6 +66,7 @@ roadmap for a follow-up release.
 |---|---|---|
 | **Custom Python** (`monitor_orchestrator`) | ✅ Auto-raise on `delegation()` calls | Pass `prevent={...}` in config |
 | **LangGraph** (`monitor()` / `AgentSonarCallback`) | ✅ Auto-raise out of `graph.invoke()` | Pass `prevent={...}` in config |
+| **Claude Code** (hooks) | ✅ Ask (default) or deny | Arm with `AGENTSONAR_PREVENT_<CLASS>_<KEY>` env vars; choose the surface with `AGENTSONAR_PREVENT_DECISION=ask\|deny` |
 | **OMA** (TypeScript via sidecar) | ✅ Auto-raise on `emitDelegations()` | Start sidecar with `--prevent-cyclic-delegation` |
 | **CrewAI** (`AgentSonarListener`) | 🛣 On the way | Detection works today; auto-stop is coming in a follow-up release. |
 

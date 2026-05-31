@@ -2,14 +2,12 @@
 
 **Coordination intelligence for AI.**
 
-Catch the multi-agent failure modes that tracing tools miss — silent loops between agents, the same agent being called over and over with the same task, and sudden traffic spikes between agents.
+Catch the coordination failures that tracing tools miss — silent loops, the same work repeated over and over, runaway subagent fan-out, hung tool calls, failing-tool retry storms, and sessions sliding off the context-window cliff. Each call looks fine on its own; the failure is in the *shape* of the traffic.
 
-**Today, AgentSonar supports multi-agent systems** — any setup where two or more agents talk to each other and pass work along. Use it with **CrewAI, LangGraph, custom Python orchestrators, or Node / Electron orchestrators**. If your framework isn't directly supported yet, the custom-orchestrator path works with anything you've wired together yourself.
+**Today, AgentSonar works with single agents calling tools and multi-agent systems** — from a single Claude Code session (every tool call and subagent it makes) to orchestrators where agents hand work to each other. Use it with **Claude Code, CrewAI, LangGraph, custom Python orchestrators, or Node / Electron orchestrators**. If your framework isn't directly supported yet, the custom path works with anything you've wired together yourself.
 
 **Coming soon (other AI system shapes):**
 
-- 🛣 Single agent with tools (function-calling, retrieval, code execution)
-- 🛣 Single agent wired to MCP servers
 - 🛣 RAG pipelines (retriever → re-ranker → generator)
 - 🛣 Custom buses between agents
 
@@ -44,20 +42,23 @@ AgentSonar watches the *shape* of the traffic between your agents. The moment th
 - ✅ **Silent loops** — your Researcher gathers material and sends it to the Writer, the Writer drafts something and sends it to the Reviewer, the Reviewer flags an issue and sends it back to the Researcher. Round and round, forever. The Reviewer never approves. Tokens burn, no output ever ships.
 - ✅ **Repeated agent calls** — your Writer asks the Researcher for the same thing 47 times in a row ("find competitor pricing", "find competitor pricing", "find competitor pricing"…). The Researcher returns the same answer each time. The Writer never moves on.
 - ✅ **Traffic spikes between agents** — a sudden burst of agent-to-agent calls (the Writer fires off work to the Researcher 200 times in 30 seconds) that's wildly out of pattern with normal traffic, even if no single pair is repeating.
+- ✅ **Redundant work** — an agent calls the same tool with the same arguments again and again, getting nothing new back each time.
+- ✅ **Stuck / hung tool calls** — a tool (including a hung MCP server) that starts and never returns, so the agent waits on something that will never come.
+- ✅ **Subagent explosion** — a runaway fan-out of subagents spawned at once, quietly multiplying the token bill.
+- ✅ **Failed-tool retry storms** — an agent hammering the same failing tool or endpoint over and over instead of stopping or routing around it.
+- ✅ **Context-window cliff** — the session filling the model's context window toward the point where quality degrades and the next autocompact kicks in, read from the real token counts.
 
 ### Prevent (shipped, opt-in)
 
-- ✅ **Auto-stop silent loops** — when a cycle between agents crosses the threshold you set, AgentSonar raises a typed `PreventError` exception. Your code catches it and stops the run before the next LLM call. (Today, Prevent Mode covers silent loops only — repeated calls and traffic spikes alert you, but won't auto-stop.)
+- ✅ **Auto-stop** — when a coordination failure crosses the limit you set, AgentSonar stops the run before the next call. It raises a typed `PreventError` your code catches; on **Claude Code** it can instead prompt you to approve (ask) or hard-block the tool call (deny). Prevent Mode now spans every shipped failure class.
 
 → Full walkthrough: [`docs/prevent-mode.md`](docs/prevent-mode.md)
 
 ### Coming soon
 
 - 🛣 **Deadlocks** — two agents wait on each other and neither can move. The Researcher is waiting for the Writer's brief; the Writer is waiting for the Researcher to confirm scope. Both sit there forever.
-- 🛣 **Agent stalling** — an agent goes quiet mid-task and never times out. The pipeline hangs and no error ever surfaces.
 - 🛣 **Groundless response** — agent answers customer questions without consulting any tool.
 - 🛣 **Retrieval thrash** — agentic RAG re-fetching the same content 20+ times.
-- 🛣 **MCP retry loop** — agent retries a failing MCP server forever, ignoring errors.
 - 🛣 **Cost runaway** — real-time projection: *"this cycle will cost $X if not stopped."*
 
 …and many more coordination and silent failures we're tracking. If you want a specific failure mode added, [request a feature](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml) or [open an issue](https://github.com/agentsonar/agentsonar/issues/new/choose).
@@ -71,6 +72,7 @@ AgentSonar watches the *shape* of the traffic between your agents. The moment th
 | **Custom Python** (any framework, no orchestrator) | ✅ Shipped |
 | **Custom Node / TypeScript** (any framework, no orchestrator) | ✅ Shipped |
 | **LangGraph** | ✅ Shipped |
+| **Claude Code** (terminal CLI + desktop app) | ✅ Shipped |
 | **CrewAI** | ✅ Shipped (detect-only; auto-stop on the way) |
 | **Electron / Node bus** (OMA sidecar) | ✅ Shipped |
 | **OpenAI Agents SDK** | 🛣 Coming soon |
@@ -121,6 +123,20 @@ graph.invoke({"input": "..."})
 ```
 
 → Full guide: [`docs/adapters/langgraph.md`](docs/adapters/langgraph.md)
+
+### Claude Code (terminal CLI + desktop app)
+
+```bash
+pip install agentsonar
+agentsonar install-claude-hooks   # wires .claude/settings.json, merge-safe
+# (or: python -m agentsonar install-claude-hooks)
+```
+
+Start a fresh Claude Code session — every tool call and subagent is now watched,
+content-blind. Turn on Prevent Mode and AgentSonar will prompt you (or hard-block)
+before a runaway tool call.
+
+→ Full guide: [`docs/adapters/claude-code.md`](docs/adapters/claude-code.md)
 
 ### CrewAI
 

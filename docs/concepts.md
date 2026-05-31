@@ -1,6 +1,6 @@
 # Concepts: what AgentSonar actually detects
 
-This page is for anyone who saw "coordination intelligence for multi-agent AI" and thought: *what does that even mean?*
+This page is for anyone who saw "coordination intelligence for AI" and thought: *what does that even mean?*
 
 If you've ever shipped a multi-agent system and seen tokens burn for minutes with no useful output — agents passing work back and forth, the same tool called over and over, no error, no signal — this page explains what AgentSonar catches and why a normal trace viewer didn't show you the problem.
 
@@ -65,6 +65,10 @@ When agents talk in a loop like the one above, the system can keep running long 
 **Why standard tracing misses it:** most tracing tools record events one at a time. They don't model rate. By the time a human notices the trace volume, the bill is already in the hundreds.
 
 **What AgentSonar shows:** a runaway-spend alert when either a single agent-to-agent pair or the whole system crosses a configurable rate limit (default: 10 calls per pair or 200 calls total in any 180-second window).
+
+### Tool and session failures
+
+The same "watch the shape" idea reaches past agent-to-agent traffic into a single agent's own tool use and its session. AgentSonar also catches **redundant work** (the same tool called again with identical arguments, returning nothing new), **stuck or hung tool calls** (a tool, including a hung MCP server, that starts and never returns), **subagent explosion** (a runaway fan-out of subagents spawned at once), **failed-tool retry storms** (an agent hammering the same failing tool or endpoint instead of stopping), and the **context-window cliff** (a session filling the model's context window toward the point where quality degrades and the next autocompact kicks in).
 
 ## Why standard logging and tracing miss this
 
