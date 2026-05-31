@@ -65,6 +65,36 @@ AgentSonar watches the *shape* of the traffic between your agents. The moment th
 
 ---
 
+## What it saves you
+
+A stuck coordination failure doesn't just look bad in a trace — it bills you for every wasted call. This is documented, not hypothetical:
+
+- A four-agent pipeline expected to cost ~$0.80/run **burned $47** on one stuck researcher loop ([LeanOps, 2026](https://leanopstech.com/blog/agentic-ai-cost-runaway-token-budget-2026/)).
+- An agent left running overnight came back to a **$437** bill ([Dev Journal, 2026](https://earezki.com/ai-news/2026-04-29-i-let-my-ai-agent-run-overnight-it-cost-437/)).
+- A tool-call loop fired **14,000 identical `list_files` calls** before anyone noticed ([LeanOps, 2026](https://leanopstech.com/blog/agentic-ai-cost-runaway-token-budget-2026/)). Others on record: $800, $2,000, $4,200.
+
+AgentSonar catches these early, and with Prevent Mode it stops them before the next call. Two worked examples at [Claude Sonnet pricing](https://platform.claude.com/docs/en/about-claude/pricing) ($3 / $15 per million input / output tokens). The dollar figures are illustrative — your tokens-per-call will vary — but the *shape* of the saving doesn't.
+
+**Example 1 — a silent loop, auto-stopped.** A reviewer ↔ generator loop, ~2 model calls per rotation, ~6K input + 1.5K output each (≈ $0.08/rotation).
+
+| | Rotations | Cost |
+|---|---|---|
+| Unattended (noticed next morning, ~1 rotation / 30s) | ~960 | **~$77** |
+| With Prevent Mode (stops at rotation 15) | 15 | **~$1.20** |
+| **Saved** | | **~$76** |
+
+**Example 2 — redundant tool calls, caught at call #3.** The 14,000-call incident above, at ~2K input + 0.5K output per repeated call.
+
+| | Identical calls | Cost |
+|---|---|---|
+| Unchecked | 14,000 | **~$190** |
+| `redundant_work` + Prevent (blocks the 4th) | 3 | **~$0.04** |
+| **Saved** | | **~$190** |
+
+The point isn't the exact dollar figure — it's that a failure that would otherwise run unattended for hours (or thousands of calls) is caught in seconds, at single-digit-call cost. Even at a tenth of these token estimates, Example 2 still saves ~$19.
+
+---
+
 ## Framework support
 
 | Framework | Status |

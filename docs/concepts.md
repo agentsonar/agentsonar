@@ -66,9 +66,49 @@ When agents talk in a loop like the one above, the system can keep running long 
 
 **What AgentSonar shows:** a runaway-spend alert when either a single agent-to-agent pair or the whole system crosses a configurable rate limit (default: 10 calls per pair or 200 calls total in any 180-second window).
 
-### Tool and session failures
+The next five reach past agent-to-agent traffic into a single agent's *own* tool use and its session. Same idea, watch the shape: the "edge" is now a tool or the session, not another agent.
 
-The same "watch the shape" idea reaches past agent-to-agent traffic into a single agent's own tool use and its session. AgentSonar also catches **redundant work** (the same tool called again with identical arguments, returning nothing new), **stuck or hung tool calls** (a tool, including a hung MCP server, that starts and never returns), **subagent explosion** (a runaway fan-out of subagents spawned at once), **failed-tool retry storms** (an agent hammering the same failing tool or endpoint instead of stopping), and the **context-window cliff** (a session filling the model's context window toward the point where quality degrades and the next autocompact kicks in).
+### 4. Redundant work (the same call, again and again)
+
+**Plain English:** an agent calls the same tool with the exact same arguments over and over, getting nothing new back.
+
+**Real example:** a coding agent re-reads the same file four times in one task, or re-runs the identical `grep` it ran a minute ago. Nothing changed in between, so every call returns the same bytes — pure wasted tokens and latency.
+
+**What AgentSonar shows:** a `redundant_work` alert naming the tool and the repeat count. A write that changes the target resets the count, so a normal read → edit → read cycle never trips it.
+
+### 5. Stuck or hung tool calls (the call that never returns)
+
+**Plain English:** a tool starts and never finishes, and no error is ever raised.
+
+**Everyday analogy:** dialing a number that just rings forever. You're not on hold, you're not rejected — you're stuck.
+
+**Real example:** a hung MCP server, an HTTP request with no timeout, a stuck shell subprocess. The agent is blocked waiting on a result that will never arrive, and the session silently hangs.
+
+**What AgentSonar shows:** an `agent_stall` alert for any tool call still pending past your timeout (default: warning at 120s, critical at 300s), with the tool name and how long it has been hanging.
+
+### 6. Subagent explosion (the runaway fan-out)
+
+**Plain English:** an agent spawns a swarm of subagents all at once.
+
+**Real example:** a coordinator that should delegate to two researchers instead launches ten in parallel. Each is reasonable alone, but together they multiply the token bill and can stampede shared resources or rate limits.
+
+**What AgentSonar shows:** a `subagent_explosion` alert when concurrent or bursty spawns cross your limit (default: 8 alive at once, or 10 spawned in 30s), with the count and the subagent types involved.
+
+### 7. Failed-tool retry storms (hammering a dead path)
+
+**Plain English:** a tool keeps failing and the agent keeps retrying it instead of stopping or routing around it.
+
+**Real example:** an API that's down, or a command that errors on every run. The agent retries the identical call again and again, burning budget on a path that was never going to succeed.
+
+**What AgentSonar shows:** a `cascade_failure` alert after N consecutive failures on the same tool (default: warning at 2, critical at 3), with the tool and the error streak.
+
+### 8. Context-window cliff (the session that fills up)
+
+**Plain English:** a long session fills the model's context window, and answer quality quietly degrades before the next autocompact.
+
+**Real example:** hours into a session, the model starts forgetting decisions made earlier, repeating itself, or contradicting its own plan — not because it got dumber, but because the relevant context scrolled out of the window. Long-context research ("context rot") shows accuracy drops well before the window is technically full.
+
+**What AgentSonar shows:** a `token_velocity_anomaly` alert as the session crosses a fraction of the model's window (default: warning at 50%, critical at 75%), read from the real token counts the model reports — so you can wrap up or start fresh before the cliff.
 
 ## Why standard logging and tracing miss this
 

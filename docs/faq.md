@@ -24,7 +24,7 @@ For comparison, a single LLM API call is typically 500 to 5000 milliseconds. Age
 - `python`: e.g. `3.12`
 - `os`: e.g. `darwin`, `linux`, `win32`
 - `arch`: e.g. `arm64`, `x86_64`
-- `adapter`: which integration is active (`custom_python`, `crewai`, `langgraph`)
+- `adapter`: which integration is active (`custom_python`, `crewai`, `langgraph`, `claude_code`)
 - `timestamp`: epoch seconds
 
 **What we never send:**

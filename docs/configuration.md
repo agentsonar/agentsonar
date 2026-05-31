@@ -85,6 +85,85 @@ When the loop hits 10 rotations, your next `sonar.delegation(...)` call raises a
 | **Output** | `log_dir`, `console_output`, `file_output`, `log_level`, `keep_runs`, `report_title`, `auto_export_on_shutdown` | Where alerts and reports go |
 | **Prevent Mode** | `prevent` | Auto-stop on any shipped failure class (opt-in) |
 
+## Complete example (every knob)
+
+One config dict with every setting at its default, grouped by detector. Copy it, delete the lines you don't care about, change what you want — every key is optional. Values shown are the engine defaults; the Claude Code adapter raises two of them for coding workloads (noted inline). Each key is explained in its own section below.
+
+```python
+config = {
+    # --- Silent loops (cyclic_delegation) ---
+    "warning_threshold": 5,            # WARNING after 5 loop rotations
+    "critical_threshold": 15,          # CRITICAL after 15
+    "re_alert_interval": 30,           # seconds between repeat CRITICALs
+    "resolve_after_seconds": 60.0,     # quiet time before marked resolved
+
+    # --- Repeated calls / hot edges (repetitive_delegation) ---
+    "half_life_seconds": 180.0,
+    "z_score_threshold": 3.0,
+    "hard_weight_limit": 10.0,
+    "min_edges_for_zscore": 10,
+    "min_total_events": 20,
+
+    # --- Traffic spikes / rate (resource_exhaustion) ---
+    "window_size": 180.0,
+    "per_edge_limit": 10,              # calls between one pair, per window
+    "global_limit": 200,              # total calls, per window
+
+    # --- Redundant work (redundant_work) ---
+    "redundant_tool_warning_threshold": 3,
+    "redundant_tool_critical_threshold": 5,
+
+    # --- Subagent explosion (subagent_explosion) ---
+    "subagent_concurrent_threshold": 5,        # Claude Code adapter -> 8
+    "subagent_burst_threshold": 10,
+    "subagent_burst_window_seconds": 30.0,
+    "subagent_cross_type_threshold": 4,
+    "subagent_cross_type_window_seconds": 60.0,
+
+    # --- Stuck / hung tool calls (agent_stall) ---
+    "stuck_warning_timeout_seconds": 30.0,     # Claude Code adapter -> 120.0
+    "stuck_critical_timeout_seconds": 120.0,   # Claude Code adapter -> 300.0
+
+    # --- Failed-tool retry storms (cascade_failure) ---
+    "retry_storm_warning_threshold": 2,
+    "retry_storm_critical_threshold": 3,
+    "retry_storm_window_seconds": 300.0,
+
+    # --- Context-window cliff (token_velocity_anomaly) ---
+    "context_cliff_warning_fraction": 0.50,
+    "context_cliff_critical_fraction": 0.75,
+    "model_context_size_tokens": 200000,       # 1000000 for a 1M-context model
+
+    # --- Periodic backup re-check (SCC sweep) ---
+    "scc_interval_seconds": 10.0,
+    "scc_interval_events": 50,
+
+    # --- Output ---
+    "log_dir": ".",
+    "console_output": True,
+    "file_output": True,
+    "log_level": "INFO",
+    "keep_runs": None,
+    "report_title": "AgentSonar Report",
+    "auto_export_on_shutdown": True,
+
+    # --- Prevent Mode (opt-in; off by default) ---
+    # Arm any class with its own threshold, or use {"prevent_all": True}.
+    "prevent": {
+        "cyclic_delegation": {"max_rotations": 15},
+        # "repetitive_delegation": {"max_events": 30},
+        # "redundant_work": {"max_repeats": 5},
+        # "subagent_explosion": {"max_concurrent": 8},
+        # "agent_stall": {"max_seconds": 300},
+        # "cascade_failure": {"max_consecutive_errors": 3},
+        # "token_velocity_anomaly": {"max_context_fraction": 0.8},
+        # "resource_exhaustion": True,
+    },
+}
+```
+
+(For Claude Code you don't pass this dict — you set the matching `AGENTSONAR_*` environment variables instead. See [`adapters/claude-code.md`](adapters/claude-code.md#tuning-thresholds-env-vars).)
+
 ## Silent-loop alert thresholds
 
 Sensitivity for the silent-loop detector. Raise a threshold to silence alerts; lower it to alert sooner.
@@ -154,6 +233,42 @@ Minimum number of distinct agent pairs AgentSonar needs to see before it starts 
 ### `min_total_events` (int, default `20`)
 
 Minimum total agent-to-agent calls AgentSonar needs to see before it starts judging unusualness. Pairs with `min_edges_for_zscore` as a startup guard.
+
+## Tool and session detector thresholds
+
+Sensitivity for the detectors that watch a single agent's own tools and session, rather than agent-to-agent traffic. These mirror the knobs above.
+
+> **Claude Code note.** The Claude Code adapter ships higher defaults for the two knobs that would otherwise be noisy on coding work: stuck timeouts (`120.0` / `300.0` instead of `30.0` / `120.0`, because a Bash build legitimately runs minutes and self-kills around 120s) and subagent concurrent (`8` instead of `5`, since Claude Code caps parallel subagents at 10). Any `AGENTSONAR_*` env var you set still overrides them. LangGraph / CrewAI / Custom use the engine defaults shown below.
+
+### Redundant work
+
+- **`redundant_tool_warning_threshold`** (int, default `3`) — identical tool calls (same tool, same arguments) before a WARNING.
+- **`redundant_tool_critical_threshold`** (int, default `5`) — before it escalates to CRITICAL. A write that changes the target resets the count, so a read → edit → read cycle doesn't trip it.
+
+### Stuck / hung tool calls
+
+- **`stuck_warning_timeout_seconds`** (float, default `30.0`; Claude Code `120.0`) — a pending tool call older than this fires a WARNING.
+- **`stuck_critical_timeout_seconds`** (float, default `120.0`; Claude Code `300.0`) — escalates to CRITICAL. Catches hung MCP servers and no-timeout calls.
+
+### Subagent explosion
+
+- **`subagent_concurrent_threshold`** (int, default `5`; Claude Code `8`) — subagents alive at once before firing.
+- **`subagent_burst_threshold`** (int, default `10`) — spawns within the burst window before firing.
+- **`subagent_burst_window_seconds`** (float, default `30.0`) — the burst window.
+- **`subagent_cross_type_threshold`** (int, default `4`) — distinct subagent types within the cross-type window.
+- **`subagent_cross_type_window_seconds`** (float, default `60.0`) — the cross-type window.
+
+### Failed-tool retry storms
+
+- **`retry_storm_warning_threshold`** (int, default `2`) — consecutive failures on the same tool before a WARNING.
+- **`retry_storm_critical_threshold`** (int, default `3`) — before it escalates. A success resets the streak.
+- **`retry_storm_window_seconds`** (float, default `300.0`) — the window over which failures are counted.
+
+### Context-window cliff
+
+- **`context_cliff_warning_fraction`** (float, default `0.50`) — fraction of the model's window filled before a WARNING. Long-context research shows quality starts degrading around here.
+- **`context_cliff_critical_fraction`** (float, default `0.75`) — escalates to CRITICAL, ahead of Claude Code's ~83% autocompact.
+- **`model_context_size_tokens`** (int, default `200000`) — the model's context window in tokens. Set `1000000` for a 1M-context model.
 
 ## Periodic re-check
 

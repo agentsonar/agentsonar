@@ -38,11 +38,20 @@ Two minimal scripts you can copy and run:
 
 ## What gets detected
 
-Every agent-to-agent delegation in your crew is recorded automatically. AgentSonar can fire three kinds of alerts:
+Every agent-to-agent delegation in your crew is recorded automatically. The
+CrewAI listener feeds AgentSonar's delegation-graph detectors:
 
 - **Silent loops** (`cyclic_delegation`): when delegation paths form a circle (reviewer -> planner -> reviewer).
 - **Repeated tool calls** (`repetitive_delegation`): when one agent keeps hammering another past its baseline.
 - **Runaway token / tool spend** (`resource_exhaustion`): when total or per-pair traffic crosses the rate limit.
+
+The five tool-lifecycle detectors added in the 0.6.x line (`redundant_work`,
+`subagent_explosion`, `agent_stall`, `cascade_failure`,
+`token_velocity_anomaly`) rely on per-tool start/end and token signals that the
+CrewAI event bus doesn't yet surface to the listener. They're available today on
+the [Claude Code](claude-code.md), [LangGraph](langgraph.md), and
+[custom-Python](custom-python.md) adapters; see [Concepts](../concepts.md) for
+what each one catches.
 
 ## Config
 

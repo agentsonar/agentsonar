@@ -4,6 +4,28 @@ All notable changes to AgentSonar are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning
 follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.9]: 2026-05-30
+
+### Added
+- Session browser CLI for the Claude Code adapter. `agentsonar reports` lists
+  every session, newest first, with a memorable slug, timestamp, alert counts,
+  top failure class, and the project it ran in. `agentsonar open [id|slug]`
+  opens a session's `report.html` in your browser (defaults to the most
+  recent). Both are read-only and never touch the detection hot path.
+
+## [0.6.8]: 2026-05-30
+
+### Changed
+- The Claude Code adapter now ships coding-workload-calibrated detector
+  defaults: `agent_stall` warns at 120s / critical at 300s (up from 30s / 120s)
+  and `subagent_explosion` concurrent defaults to 8 (up from 5). These cut
+  false alerts on ordinary coding sessions and remain overridable with the
+  usual `AGENTSONAR_*` env vars. Other adapters keep the generic defaults.
+
+### Fixed
+- Corrected the bundled Claude Code settings template's hook `timeout` from
+  `5000` to `60` (Claude Code reads the value in seconds).
+
 ## [0.6.7]: 2026-05-29
 
 ### Fixed
