@@ -344,6 +344,6 @@ If anything in this guide breaks or doesn't fit your setup, the fastest path to 
 
 1. **Discord** ([discord.gg/cPPD4xHe](https://discord.gg/cPPD4xHe)) for synchronous help
 2. **GitHub issue** ([new issue](https://github.com/agentsonar/agentsonar/issues/new)) for anything reproducible
-3. **Email** [agentsonarai@gmail.com](mailto:agentsonarai@gmail.com) for design partner inquiries or anything not public
+3. **Email** [founders@agent-sonar.com](mailto:founders@agent-sonar.com) for design partner inquiries or anything not public
 
 The team responds same-day on weekdays.

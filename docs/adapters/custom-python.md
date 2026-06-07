@@ -278,7 +278,7 @@ sonar.shutdown()
 **We're genuinely happy to add support for new frameworks, just ask.**
 
 Open an [issue](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml)
-or [email us](mailto:agentsonarai@gmail.com), tell us what you're using,
+or [email us](mailto:founders@agent-sonar.com), tell us what you're using,
 and we'll wire it up. The bar for new adapters is intentionally low,
 any framework with a callback hook or event bus can plug in, and past
 adapters have shipped in days, not weeks. If your framework is blocking

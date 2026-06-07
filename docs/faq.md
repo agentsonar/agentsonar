@@ -156,4 +156,4 @@ Apache 2.0. Use it commercially, modify it, redistribute it, build on it. We jus
 
 ## My question isn't here.
 
-[Open an issue](https://github.com/agentsonar/agentsonar/issues/new?template=feedback.yml) or email [agentsonarai@gmail.com](mailto:agentsonarai@gmail.com). We try to answer the same day on weekdays.
+[Open an issue](https://github.com/agentsonar/agentsonar/issues/new?template=feedback.yml) or email [founders@agent-sonar.com](mailto:founders@agent-sonar.com). We try to answer the same day on weekdays.

@@ -12,7 +12,7 @@ contact_links:
     url: https://github.com/agentsonar/agentsonar/issues/new?template=feedback.yml&title=%5Bdesign+partner%5D+
     about: Describe your multi-agent workload and we'll follow up about beta access.
   - name: Email the maintainers
-    url: mailto:agentsonarai@gmail.com
+    url: mailto:founders@agent-sonar.com
     about: |
       For private feedback, partnership inquiries, security reports,
       or anything that shouldn't be a public issue.

@@ -320,7 +320,7 @@ If you'd like to be considered as a design partner, open an issue describing you
 ## Contact
 
 - **Open an issue**: fastest, public, searchable: [bug](https://github.com/agentsonar/agentsonar/issues/new?template=bug_report.yml) · [feature request](https://github.com/agentsonar/agentsonar/issues/new?template=feature_request.yml) · [feedback](https://github.com/agentsonar/agentsonar/issues/new?template=feedback.yml)
-- **Email**: [agentsonarai@gmail.com](mailto:agentsonarai@gmail.com) for private feedback, design partner inquiries, security reports
+- **Email**: [founders@agent-sonar.com](mailto:founders@agent-sonar.com) for private feedback, design partner inquiries, security reports
 - **Discord**: [discord.gg/cPPD4xHe](https://discord.gg/cPPD4xHe)
 
 ## License
